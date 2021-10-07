@@ -1,0 +1,282 @@
+---
+kind: pipeline
+type: docker
+name: build and test
+trigger:
+  event:
+    include:
+    - push
+    exclude:
+    - tag
+
+steps:
+- name: check format
+  failure: ignore
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  environment:
+    CARGO_HOME: "./.cargo_home/"
+  commands:
+  - cargo fmt --all -- --check
+
+- name: run linter
+  failure: ignore
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  environment:
+    CARGO_HOME: "./.cargo_home/"
+  commands:
+  - cargo clippy --all-targets --all-features -- -D warnings
+
+- name: build
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  environment:
+    CARGO_HOME: "./.cargo_home/"
+  commands:
+  - cargo build --target=x86_64-unknown-linux-gnu --no-default-features
+
+- name: test
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  environment:
+    CARGO_HOME: "./.cargo_home/"
+  commands:
+  - cargo test --target=x86_64-unknown-linux-gnu --no-default-features
+
+---
+kind: pipeline
+type: docker
+name: notification
+
+depends_on:
+- build and test
+
+trigger:
+  event:
+    include:
+    - push
+    exclude:
+    - tag
+  status:
+  - failure
+
+steps:
+- name: notification
+  image: docker.claudiomattera.it/claudiomattera/drone-gotify:1
+  settings:
+    host:
+      from_secret: gotify_host
+    token:
+      from_secret: gotify_token
+    title: >
+        ✗ Build {{drone.build.number}} failed for {{drone.repo.name}}
+    message: >
+        Commit *{{drone.commit.message | trim}}* pushed by {{drone.commit.author}} on {{drone.commit.branch}}
+
+        Failed stages:
+
+        {% for stage in drone.failed.stages | split(pat=",") %}
+        - {{ stage }}
+        {% endfor %}
+
+        {% set build_link = drone.system.proto ~ "://" ~ drone.system.host ~ "/" ~ drone.repo.owner ~ "/" ~ drone.repo.name ~ "/" ~ drone.build.number -%}
+        See the complete report at <{{ build_link }}>.
+
+###############################################################################
+
+---
+kind: pipeline
+type: docker
+name: release
+trigger:
+  event:
+  - tag
+
+steps:
+- name: build
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  commands:
+  - cargo build --release
+
+- name: bundle into cartridge
+  image: docker.claudiomattera.it/claudiomattera/wasm4:1.0.8
+  commands:
+  - mkdir output
+  - w4 bundle target/wasm32-unknown-unknown/release/minesweeper.wasm
+      --title "Minesweeper"
+      --description "A minesweeper game using WASM4 engine"
+      --timestamp
+      --html ./output/minesweeper.html
+
+- name: store
+  image: plugins/s3-cache
+  settings:
+    endpoint:
+      from_secret: s3_endpoint
+    access_key:
+      from_secret: s3_access_key
+    secret_key:
+      from_secret: s3_secret_key
+    root: drone
+    rebuild: true
+    mount:
+      - ./output
+
+- name: create release on gitea
+  image: plugins/gitea-release
+  settings:
+    base_url:
+      from_secret: gitea_host
+    api_key:
+      from_secret: gitea_token
+    title: "Version ${DRONE_TAG}"
+    files:
+      - ./output/minesweeper.html
+    checksum:
+      - sha512
+
+---
+kind: pipeline
+type: docker
+name: release notification
+
+depends_on:
+- release
+
+trigger:
+  event:
+  - tag
+  status:
+  - failure
+
+steps:
+- name: notification
+  image: docker.claudiomattera.it/claudiomattera/drone-gotify:1
+  settings:
+    host:
+      from_secret: gotify_host
+    token:
+      from_secret: gotify_token
+    title: >
+        ✗ Release build failed for {{drone.repo.name}}-{{drone.tag}}
+    message: >
+        Failed stages:
+
+        {% for stage in drone.failed.stages | split(pat=",") %}
+        - {{ stage }}
+        {% endfor %}
+
+        {% set build_link = drone.system.proto ~ "://" ~ drone.system.host ~ "/" ~ drone.repo.owner ~ "/" ~ drone.repo.name ~ "/" ~ drone.build.number -%}
+        See the complete report at <{{ build_link }}>.
+
+###############################################################################
+
+---
+kind: pipeline
+type: docker
+name: deployment
+trigger:
+  event:
+  - promote
+  target:
+  - production
+
+steps:
+- name: fetch
+  image: plugins/s3-cache
+  settings:
+    endpoint:
+      from_secret: s3_endpoint
+    access_key:
+      from_secret: s3_access_key
+    secret_key:
+      from_secret: s3_secret_key
+    root: drone
+    restore: true
+
+- name: store
+  image: appleboy/drone-scp
+  settings:
+    host:
+      from_secret: ssh_host
+    username:
+      from_secret: ssh_username
+    key:
+      from_secret: ssh_key
+    passphrase:
+      from_secret: ssh_passphrase
+    target: /var/www/games/
+    source: ./output/minesweeper.html
+    strip_components: 2
+
+
+---
+kind: pipeline
+type: docker
+name: deployment notification
+
+depends_on:
+- deployment
+
+trigger:
+  event:
+  - promote
+  target:
+  - production
+  status:
+  - failure
+
+steps:
+- name: notification
+  image: docker.claudiomattera.it/claudiomattera/drone-gotify:1
+  settings:
+    host:
+      from_secret: gotify_host
+    token:
+      from_secret: gotify_token
+    title: >
+        ✗ Deployment to {{drone.deply.to}} failed for {{drone.repo.name}}-{{drone.tag}}
+    message: >
+        Failed stages:
+
+        {% for stage in drone.failed.stages | split(pat=",") %}
+        - {{ stage }}
+        {% endfor %}
+
+        {% set build_link = drone.system.proto ~ "://" ~ drone.system.host ~ "/" ~ drone.repo.owner ~ "/" ~ drone.repo.name ~ "/" ~ drone.build.number -%}
+        See the complete report at <{{ build_link }}>.
+
+###############################################################################
+
+---
+kind: pipeline
+type: docker
+name: security audit
+trigger:
+  event:
+  - cron
+  cron:
+  - security audit
+
+steps:
+- name: check security advisories
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  commands:
+  - cargo audit --deny unsound --deny yanked
+
+- name: notification
+  depends_on:
+  - check security advisories
+  when:
+    status:
+      - failure
+  image: docker.claudiomattera.it/claudiomattera/drone-gotify:1
+  settings:
+    host:
+      from_secret: gotify_host
+    token:
+      from_secret: gotify_token
+    title: >
+        ✗ Security audit failed for {{drone.repo.name}}
+    message: >
+        Dependencies of {{ drone.repo.name }} were flagged in the RustSec Advisory Database.
+
+        {% set report_link = drone.system.proto ~ "://" ~ drone.system.host ~ "/" ~ drone.repo.owner ~ "/" ~ drone.repo.name ~ "/" ~ drone.build.number -%}
+        See the complete report at <{{ report_link }}>.

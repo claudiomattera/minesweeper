@@ -1,0 +1,31 @@
+[package]
+name = "minesweeper"
+version = "0.1.0"
+authors = ["Claudio Mattera <dev@claudiomattera.it>"]
+edition = "2018"
+description = "A minesweeper game using W4 engine"
+readme = "Readme.md"
+homepage = "https://git.claudiomattera.it/claudiomattera/minesweeper"
+repository = "https://git.claudiomattera.it/claudiomattera/minesweeper"
+license = "MPL-2.0"
+keywords = [
+    "games",
+]
+categories = [
+    "games",
+]
+publish = false
+
+[features]
+# use `--no-default-features` or comment out next line to disable allocator
+default = ["buddy-alloc"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+buddy-alloc = { version = "0.4.1", optional = true }
+
+[profile.release]
+opt-level = "z"
+lto = true
