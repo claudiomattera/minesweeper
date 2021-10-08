@@ -6,4 +6,13 @@
 
 //! Binary assets
 
+use crate::graphics::Sprite;
+
 include!(concat!(env!("OUT_DIR"), "/sprites.rs"));
+
+pub const FONT_SPRITE: Sprite = Sprite {
+    width: sprites::FONT_WIDTH,
+    height: sprites::FONT_HEIGHT,
+    flags: sprites::FONT_FLAGS,
+    data: &sprites::FONT,
+};

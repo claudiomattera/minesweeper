@@ -1,0 +1,3 @@
+Adapted from the font distributed at [1]
+
+[1]: https://opengameart.org/content/8x8-font
