@@ -40,6 +40,8 @@ impl Sprite {
     /// The region starts at the point `src_x`, `src_y` and has width `width`
     /// and height `height`.
     pub fn blit_sub(&self, x: i32, y: i32, width: u32, height: u32, src_x: u32, src_y: u32) {
-        blit_sub(self.data, x, y, width, height, src_x, src_y, self.width, self.flags);
+        blit_sub(
+            self.data, x, y, width, height, src_x, src_y, self.width, self.flags,
+        );
     }
 }

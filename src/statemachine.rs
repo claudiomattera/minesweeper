@@ -88,16 +88,14 @@ impl State {
 
     pub fn draw(&self) {
         match self {
-            State::Initial => {},
+            State::Initial => {}
             State::MainMenu(s) => s.draw(),
         }
     }
 
     pub fn update(self, mouse: Option<&Mouse>) -> Transition {
         match self {
-            State::Initial => {
-                Transition::Push(State::MainMenu(MainMenuState::new()))
-            }
+            State::Initial => Transition::Push(State::MainMenu(MainMenuState::new())),
             State::MainMenu(state) => state.update(mouse),
         }
     }

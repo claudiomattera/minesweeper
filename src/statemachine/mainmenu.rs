@@ -7,7 +7,7 @@
 use crate::mouse::Mouse;
 
 use crate::graphics::DrawColors;
-use crate::wasm4::{BLIT_1BPP, BUTTON_1, GAMEPAD1, blit, text};
+use crate::wasm4::{blit, text, BLIT_1BPP, BUTTON_1, GAMEPAD1};
 
 use super::{State, Transition};
 
@@ -16,7 +16,7 @@ pub struct MainMenuState {}
 
 impl MainMenuState {
     pub fn new() -> Self {
-        Self { }
+        Self {}
     }
 
     pub fn draw(&self) {

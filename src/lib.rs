@@ -17,7 +17,7 @@ mod mouse;
 use mouse::Mouse;
 
 mod statemachine;
-use statemachine::{STATE_MACHINE, Machine};
+use statemachine::{Machine, STATE_MACHINE};
 
 mod wasm4;
 use wasm4::*;
