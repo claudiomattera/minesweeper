@@ -3,6 +3,8 @@ mod alloc;
 
 mod assets;
 
+mod debug;
+
 mod graphics;
 
 mod mouse;
