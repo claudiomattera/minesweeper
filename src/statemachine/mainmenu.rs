@@ -6,7 +6,8 @@
 
 use crate::mouse::Mouse;
 
-use crate::wasm4::{BLIT_1BPP, BUTTON_1, DRAW_COLORS, GAMEPAD1, blit, text};
+use crate::graphics::DrawColors;
+use crate::wasm4::{BLIT_1BPP, BUTTON_1, GAMEPAD1, blit, text};
 
 use super::{State, Transition};
 
@@ -19,12 +20,13 @@ impl MainMenuState {
     }
 
     pub fn draw(&self) {
-        unsafe { *DRAW_COLORS = 2 }
+        let draw_colors = DrawColors::new();
+        draw_colors.set(2);
         text("Hello from Rust!", 10, 10);
 
         let gamepad = unsafe { *GAMEPAD1 };
         if gamepad & BUTTON_1 != 0 {
-            unsafe { *DRAW_COLORS = 4 }
+            draw_colors.set(4);
         }
 
         blit(&SMILEY, 76, 76, 8, 8, BLIT_1BPP);
