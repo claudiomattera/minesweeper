@@ -8,6 +8,8 @@ use crate::mouse::Mouse;
 
 use crate::debug;
 
+use crate::graphics::DrawColors;
+
 mod mainmenu;
 use mainmenu::MainMenuState;
 
@@ -35,8 +37,11 @@ pub struct Machine {
 
 impl Machine {
     pub fn draw(&self) {
+        let draw_colors = DrawColors::new();
+        let original_colors = draw_colors.get();
         for i in 0..(self.current_state_index + 1) {
             self.states_stack[i].draw();
+            draw_colors.set(original_colors);
         }
     }
 
