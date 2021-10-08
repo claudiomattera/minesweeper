@@ -3,6 +3,8 @@ mod alloc;
 
 mod assets;
 
+mod graphics;
+
 mod wasm4;
 use wasm4::*;
 
