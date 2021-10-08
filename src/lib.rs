@@ -1,5 +1,8 @@
 #[cfg(feature = "buddy-alloc")]
 mod alloc;
+
+mod assets;
+
 mod wasm4;
 use wasm4::*;
 
