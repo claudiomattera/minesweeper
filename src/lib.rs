@@ -5,6 +5,9 @@ mod assets;
 
 mod graphics;
 
+mod mouse;
+use mouse::Mouse;
+
 mod wasm4;
 use wasm4::*;
 
@@ -32,4 +35,18 @@ fn update() {
 
     blit(&SMILEY, 76, 76, 8, 8, BLIT_1BPP);
     text("Press X to blink", 16, 90);
+
+    let mouse_position = Mouse.coordinates();
+    vline(mouse_position.0 as i32, 0, SCREEN_SIZE);
+    hline(0, mouse_position.1 as i32, SCREEN_SIZE);
+    if Mouse.left_clicked() {
+        trace("Left clicked");
+    }
+    if Mouse.right_clicked() {
+        trace("Right clicked");
+    }
+    if Mouse.middle_clicked() {
+        trace("Middle clicked");
+    }
+    Mouse.update();
 }
