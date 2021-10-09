@@ -23,6 +23,7 @@ const TILE_SIZE: u32 = 10;
 
 #[derive(Clone, Copy)]
 pub struct Map<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_COUNT: usize> {
+    offset: (i32, i32),
     pub mines_positions: [(usize, usize); MINES_COUNT],
     tiles: [Tile; TOTAL],
 }
@@ -35,7 +36,7 @@ enum Tile {
 }
 
 impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_COUNT: usize> Map<WIDTH, HEIGHT, TOTAL, MINES_COUNT> {
-    pub fn from_random_seed(seed: u64) -> Self {
+    pub fn from_random_seed(seed: u64, offset: (i32, i32)) -> Self {
         let mut mines_positions = [(0, 0); MINES_COUNT];
         let mut generator = XorShiftRng::seed_from_u64(seed);
         for i in 0..MINES_COUNT {
@@ -49,6 +50,7 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         }
         let tiles = [Tile::Covered; TOTAL];
         Self {
+            offset,
             mines_positions,
             tiles,
         }
@@ -208,6 +210,8 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
     }
 
     fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
+        let mouse_x = mouse_x - self.offset.0 as i16;
+        let mouse_y = mouse_y - self.offset.1 as i16;
         if mouse_x < 0 || mouse_y < 0 {
             None
         } else if mouse_x / TILE_SIZE as i16 >= WIDTH as i16 || mouse_y / TILE_SIZE as i16 >= HEIGHT as i16 {
@@ -221,14 +225,14 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
     fn draw_tile_border(&self, x: i32, y: i32) {
         let draw_colors = DrawColors::new();
         draw_colors.set(0x2);
-        vline(x, y, TILE_SIZE - 1);
-        hline(x, y, TILE_SIZE - 1);
+        vline(self.offset.0 + x, self.offset.1 + y, TILE_SIZE - 1);
+        hline(self.offset.0 + x, self.offset.1 + y, TILE_SIZE - 1);
     }
 
     fn draw_tile_cover(&self, x: i32, y: i32) {
         let draw_colors = DrawColors::new();
         draw_colors.set(0x3);
-        rect(x + 1, y + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        rect(self.offset.0 + x + 1, self.offset.1 + y + 1, TILE_SIZE - 2, TILE_SIZE - 2);
     }
 
     fn draw_tile_character(&self, x: i32, y: i32, c: Character) {
@@ -236,9 +240,9 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         let draw_colors = DrawColors::new();
         draw_colors.set(0x2240);
         match c {
-            Character::Number(n) => FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8 * n as u32, 0),
-            Character::Mine => FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8 * 7, 8 * 8),
-            Character::Flag => FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8, 8),
+            Character::Number(n) => FONT_SPRITE.blit_sub(self.offset.0 + x + offset, self.offset.1 + y + offset, 8, 8, 8 * n as u32, 0),
+            Character::Mine => FONT_SPRITE.blit_sub(self.offset.0 + x + offset, self.offset.1 + y + offset, 8, 8, 8 * 7, 8 * 8),
+            Character::Flag => FONT_SPRITE.blit_sub(self.offset.0 + x + offset, self.offset.1 + y + offset, 8, 8, 8, 8),
         }
     }
 }

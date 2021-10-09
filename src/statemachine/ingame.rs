@@ -19,7 +19,7 @@ impl InGameState {
     pub fn new() -> Self {
         let seed = 0;
         debug!("Creating map with seed {}", seed);
-        let map = Map10x10x10::from_random_seed(seed);
+        let map = Map10x10x10::from_random_seed(seed, (10, 20));
         for (x, y) in map.mines_positions {
             debug!("Mine: {}, {}", x, y);
         }
