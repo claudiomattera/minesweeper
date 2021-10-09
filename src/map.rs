@@ -210,7 +210,7 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
     fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
         if mouse_x < 0 || mouse_y < 0 {
             None
-        } else if mouse_x / TILE_SIZE as i16 >= WIDTH as i16 || mouse_y / TILE_SIZE as i16 >= WIDTH as i16 {
+        } else if mouse_x / TILE_SIZE as i16 >= WIDTH as i16 || mouse_y / TILE_SIZE as i16 >= HEIGHT as i16 {
             None
         } else {
             let (x, y) = (mouse_x / TILE_SIZE as i16, mouse_y / TILE_SIZE as i16);
