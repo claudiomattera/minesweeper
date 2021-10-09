@@ -32,7 +32,15 @@ impl InGameState {
         self.map.draw();
     }
 
-    pub fn update(self, _mouse: Option<&Mouse>) -> Transition {
+    pub fn update(self, mouse: Option<&Mouse>) -> Transition {
+        if let Some(mouse) = mouse {
+            if mouse.left_clicked() {
+                let (x, y) = mouse.coordinates();
+                let mut map = self.map;
+                map.uncover_tile(x as usize, y as usize);
+                return Transition::Switch(State::InGame(InGameState { map }));
+            }
+        }
         Transition::Switch(State::InGame(self))
     }
 }

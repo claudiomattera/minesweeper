@@ -4,12 +4,18 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use core::iter::Iterator;
+
 use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
+use fixedvec::alloc_stack;
+use fixedvec::FixedVec;
+
 use crate::assets::FONT_SPRITE;
+use crate::debug;
 use crate::graphics::DrawColors;
-use crate::wasm4::{hline, vline};
+use crate::wasm4::{hline, rect, vline};
 
 pub type Map10x10x10 = Map<10, 10, 100, 10>;
 
@@ -34,14 +40,53 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
             let y = generator.next_u32() as usize;
             mines_positions[i] = (x % WIDTH, y % HEIGHT);
         }
-        let mut tiles = [Tile::Covered; TOTAL];
-        tiles[12] = Tile::Uncovered;
-        tiles[44] = Tile::Uncovered;
-        tiles[63] = Tile::Uncovered;
-        tiles[43] = Tile::Uncovered;
+        let tiles = [Tile::Covered; TOTAL];
         Self {
             mines_positions,
             tiles,
+        }
+    }
+
+    pub fn uncover_tile(&mut self, mouse_x: usize, mouse_y: usize) {
+        let (initial_x, initial_y) = (mouse_x / WIDTH, mouse_y / HEIGHT);
+
+        let mut preallocated_space = alloc_stack!([(usize, usize); TOTAL]);
+        let mut tiles_to_uncover = FixedVec::new(&mut preallocated_space);
+        tiles_to_uncover.push((initial_x, initial_y))
+            .expect("Pushing to a full vector");
+
+        while let Some((x, y)) = tiles_to_uncover.pop() {
+            debug!("{} tiles to uncover", tiles_to_uncover.len());
+            debug!("Uncovering tile {}x{}", x, y);
+
+            if let Tile::Uncovered = self.tile(x, y) {
+                continue;
+            } else {
+                self.uncover_individual_tile(x, y);
+                let neighbour_mines = self.count_neighbour_mines(x, y);
+                if neighbour_mines == 0 {
+                    let x = x as i32;
+                    let y = y as i32;
+                    let candidates = [
+                        (x + 1, y + 1),
+                        (x + 1, y - 1),
+                        (x - 1, y + 1),
+                        (x - 1, y - 1),
+                        (x, y + 1),
+                        (x, y - 1),
+                        (x + 1, y),
+                        (x - 1, y),
+                    ];
+                    for (cx, cy) in candidates {
+                        if cx >= 0 && cy >= 0 && cx < WIDTH as i32 && cy < HEIGHT as i32 {
+                            let tile = (cx as usize, cy as usize);
+                            if let None = tiles_to_uncover.iter().find(|t| **t == tile) {
+                                tiles_to_uncover.push(tile).expect("Pushing to a full vector");
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -59,11 +104,21 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
                         draw_colors.set(0x2);
                         vline(x, y, 9);
                         hline(x, y, 9);
+                        draw_colors.set(0x3);
+                        rect(x + 1, y + 1, 8, 8);
                     }
                     Tile::Uncovered => {
                         let neighbour_mines = self.count_neighbour_mines(tx, ty);
-                        draw_colors.set(0x2240);
-                        FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8 * neighbour_mines as u32, 0);
+                        if neighbour_mines > 0 {
+                            draw_colors.set(0x2240);
+                            FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8 * neighbour_mines as u32, 0);
+                        } else {
+                            draw_colors.set(0x2);
+                            vline(x, y, 9);
+                            hline(x, y, 9);
+                            draw_colors.set(0x1);
+                            rect(x + 1, y + 1, 8, 8);
+                        }
                     }
                 }
             }
@@ -82,5 +137,9 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
 
     fn tile(&self, x: usize, y: usize) -> &Tile {
         &self.tiles[x + y * WIDTH]
+    }
+
+    fn uncover_individual_tile(&mut self, x: usize, y: usize) {
+        self.tiles[x + y * WIDTH] = Tile::Uncovered;
     }
 }

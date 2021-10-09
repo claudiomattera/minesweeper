@@ -158,6 +158,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a246d82be1c9d791c5dfde9a2bd045fc3cbba3fa2b11ad558f27d01712f00569"
 
 [[package]]
+name = "fixedvec"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b395ef2adf62bdeefcd1b59ad0dd2225c6c333ec79656ea79ac5285c46d051ea"
+
+[[package]]
 name = "image"
 version = "0.23.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -184,6 +190,7 @@ version = "0.1.0"
 dependencies = [
  "bare-io",
  "buddy-alloc",
+ "fixedvec",
  "png2wasm4src",
  "rand_core",
  "rand_xorshift",
