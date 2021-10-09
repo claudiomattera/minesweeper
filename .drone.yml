@@ -31,7 +31,7 @@ steps:
   environment:
     CARGO_HOME: "./.cargo_home/"
   commands:
-  - cargo build --target=x86_64-unknown-linux-gnu --no-default-features
+  - cargo build --target=x86_64-unknown-linux-gnu --no-default-features --tests
 
 - name: test
   image: docker.claudiomattera.it/claudiomattera/rust:1.55.0

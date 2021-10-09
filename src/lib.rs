@@ -6,7 +6,9 @@
 
 #![no_std]
 
+#[cfg(target_family = "wasm")]
 use core::arch::wasm32;
+
 use core::panic::PanicInfo;
 
 #[cfg(feature = "buddy-alloc")]
@@ -46,6 +48,7 @@ fn update() {
     Mouse.update();
 }
 
+#[cfg(target_family = "wasm")]
 #[panic_handler]
 fn panic_handler(panic_info: &PanicInfo<'_>) -> ! {
     match panic_info.payload().downcast_ref::<&str>() {
