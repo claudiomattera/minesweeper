@@ -37,9 +37,13 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         let mut mines_positions = [(0, 0); MINES_COUNT];
         let mut generator = XorShiftRng::seed_from_u64(seed);
         for i in 0..MINES_COUNT {
-            let x = generator.next_u32() as usize;
-            let y = generator.next_u32() as usize;
-            mines_positions[i] = (x % WIDTH, y % HEIGHT);
+            let mut x = generator.next_u32() as usize % WIDTH;
+            let mut y = generator.next_u32() as usize % HEIGHT;
+            while let Some(_) = mines_positions[0..i].iter().find(|pos| **pos == (x, y)) {
+                x = generator.next_u32() as usize % WIDTH;
+                y = generator.next_u32() as usize % HEIGHT;
+            }
+            mines_positions[i] = (x, y);
         }
         let tiles = [Tile::Covered; TOTAL];
         Self {
