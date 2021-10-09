@@ -29,6 +29,7 @@ pub struct Map<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, cons
 enum Tile {
     Covered,
     Uncovered,
+    Flagged,
 }
 
 impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_COUNT: usize> Map<WIDTH, HEIGHT, TOTAL, MINES_COUNT> {
@@ -47,6 +48,15 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         }
     }
 
+    pub fn flag_tile(&mut self, mouse_x: usize, mouse_y: usize) {
+        let (tx, ty) = (mouse_x / WIDTH, mouse_y / HEIGHT);
+        match self.tile(tx, ty) {
+            Tile::Uncovered => {}
+            Tile::Covered => self.flag_individual_tile(tx, ty),
+            Tile::Flagged => self.unflag_individual_tile(tx, ty)
+        }
+    }
+
     pub fn uncover_tile(&mut self, mouse_x: usize, mouse_y: usize) {
         let (initial_x, initial_y) = (mouse_x / WIDTH, mouse_y / HEIGHT);
 
@@ -59,33 +69,35 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
             debug!("{} tiles to uncover", tiles_to_uncover.len());
             debug!("Uncovering tile {}x{}", x, y);
 
-            if let Tile::Uncovered = self.tile(x, y) {
-                continue;
-            } else {
-                self.uncover_individual_tile(x, y);
-                let neighbour_mines = self.count_neighbour_mines(x, y);
-                if neighbour_mines == 0 {
-                    let x = x as i32;
-                    let y = y as i32;
-                    let candidates = [
-                        (x + 1, y + 1),
-                        (x + 1, y - 1),
-                        (x - 1, y + 1),
-                        (x - 1, y - 1),
-                        (x, y + 1),
-                        (x, y - 1),
-                        (x + 1, y),
-                        (x - 1, y),
-                    ];
-                    for (cx, cy) in candidates {
-                        if cx >= 0 && cy >= 0 && cx < WIDTH as i32 && cy < HEIGHT as i32 {
-                            let tile = (cx as usize, cy as usize);
-                            if let None = tiles_to_uncover.iter().find(|t| **t == tile) {
-                                tiles_to_uncover.push(tile).expect("Pushing to a full vector");
+            match self.tile(x, y) {
+                Tile::Uncovered => continue,
+                Tile::Covered => {
+                    self.uncover_individual_tile(x, y);
+                    let neighbour_mines = self.count_neighbour_mines(x, y);
+                    if neighbour_mines == 0 {
+                        let x = x as i32;
+                        let y = y as i32;
+                        let candidates = [
+                            (x + 1, y + 1),
+                            (x + 1, y - 1),
+                            (x - 1, y + 1),
+                            (x - 1, y - 1),
+                            (x, y + 1),
+                            (x, y - 1),
+                            (x + 1, y),
+                            (x - 1, y),
+                        ];
+                        for (cx, cy) in candidates {
+                            if cx >= 0 && cy >= 0 && cx < WIDTH as i32 && cy < HEIGHT as i32 {
+                                let tile = (cx as usize, cy as usize);
+                                if let None = tiles_to_uncover.iter().find(|t| **t == tile) {
+                                    tiles_to_uncover.push(tile).expect("Pushing to a full vector");
+                                }
                             }
                         }
                     }
                 }
+                Tile::Flagged => continue,
             }
         }
     }
@@ -125,6 +137,15 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
                             }
                         }
                     }
+                    Tile::Flagged => {
+                        draw_colors.set(0x2);
+                        vline(x, y, 9);
+                        hline(x, y, 9);
+                        draw_colors.set(0x3);
+                        rect(x + 1, y + 1, 8, 8);
+                        draw_colors.set(0x2240);
+                        FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8, 8);
+                    }
                 }
             }
         }
@@ -146,5 +167,13 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
 
     fn uncover_individual_tile(&mut self, x: usize, y: usize) {
         self.tiles[x + y * WIDTH] = Tile::Uncovered;
+    }
+
+    fn flag_individual_tile(&mut self, x: usize, y: usize) {
+        self.tiles[x + y * WIDTH] = Tile::Flagged;
+    }
+
+    fn unflag_individual_tile(&mut self, x: usize, y: usize) {
+        self.tiles[x + y * WIDTH] = Tile::Covered;
     }
 }

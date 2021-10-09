@@ -40,6 +40,12 @@ impl InGameState {
                 map.uncover_tile(x as usize, y as usize);
                 return Transition::Switch(State::InGame(InGameState { map }));
             }
+            if mouse.right_clicked() {
+                let (x, y) = mouse.coordinates();
+                let mut map = self.map;
+                map.flag_tile(x as usize, y as usize);
+                return Transition::Switch(State::InGame(InGameState { map }));
+            }
         }
         Transition::Switch(State::InGame(self))
     }
