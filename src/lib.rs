@@ -17,6 +17,7 @@ mod assets;
 mod debug;
 
 mod graphics;
+use graphics::DrawColors;
 
 mod map;
 
@@ -37,18 +38,11 @@ fn update() {
 
     state_machine.update(Some(&Mouse));
 
-    let mouse_position = Mouse.coordinates();
-    vline(mouse_position.0 as i32, 0, SCREEN_SIZE);
-    hline(0, mouse_position.1 as i32, SCREEN_SIZE);
-    if Mouse.left_clicked() {
-        trace("Left clicked");
-    }
-    if Mouse.right_clicked() {
-        trace("Right clicked");
-    }
-    if Mouse.middle_clicked() {
-        trace("Middle clicked");
-    }
+    let pos = Mouse.coordinates();
+    let draw_colors = DrawColors::new();
+    draw_colors.set(4);
+    vline(pos.0 as i32, pos.1 as i32 - 1, 3);
+    hline(pos.0 as i32 - 1, pos.1 as i32, 3);
     Mouse.update();
 }
 
