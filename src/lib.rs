@@ -4,6 +4,11 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+#![no_std]
+
+use core::arch::wasm32;
+use core::panic::PanicInfo;
+
 #[cfg(feature = "buddy-alloc")]
 mod alloc;
 
@@ -43,4 +48,14 @@ fn update() {
         trace("Middle clicked");
     }
     Mouse.update();
+}
+
+#[panic_handler]
+fn panic_handler(panic_info: &PanicInfo<'_>) -> ! {
+    match panic_info.payload().downcast_ref::<&str>() {
+        Some(cause) => debug!("Panicked due to: {}", cause),
+        None => debug!("Panicked due to unknown cause"),
+    }
+
+    unsafe { wasm32::unreachable() }
 }

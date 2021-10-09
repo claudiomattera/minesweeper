@@ -32,7 +32,7 @@ macro_rules! debug {
                 .expect("!write");
             let ending = cursor.position() as usize;
             let raw = &string_buffer[..ending];
-            let s = unsafe { std::str::from_utf8_unchecked(raw) };
+            let s = unsafe { core::str::from_utf8_unchecked(raw) };
             crate::wasm4::trace(s);
         }
     };
