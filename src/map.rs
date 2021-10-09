@@ -126,6 +126,9 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
                         } else {
                             let neighbour_mines = self.count_neighbour_mines(tx, ty);
                             if neighbour_mines > 0 {
+                                draw_colors.set(0x2);
+                                vline(x, y, 9);
+                                hline(x, y, 9);
                                 draw_colors.set(0x2240);
                                 FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8 * neighbour_mines as u32, 0);
                             } else {
