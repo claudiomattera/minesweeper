@@ -74,7 +74,8 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
                 Tile::Covered => {
                     self.uncover_individual_tile(x, y);
                     let neighbour_mines = self.count_neighbour_mines(x, y);
-                    if neighbour_mines == 0 {
+                    let neighbour_flags = self.count_neighbour_flags(x, y);
+                    if neighbour_mines == neighbour_flags {
                         let x = x as i32;
                         let y = y as i32;
                         let candidates = [
@@ -161,6 +162,32 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
                 count += 1;
             }
         }
+        count
+    }
+
+    fn count_neighbour_flags(&self, x: usize, y: usize) -> usize {
+        let x = x as i32;
+        let y = y as i32;
+        let mut count = 0;
+
+        let candidates = [
+            (x + 1, y + 1),
+            (x + 1, y - 1),
+            (x - 1, y + 1),
+            (x - 1, y - 1),
+            (x, y + 1),
+            (x, y - 1),
+            (x + 1, y),
+            (x - 1, y),
+        ];
+        for (cx, cy) in candidates {
+            if cx >= 0 && cy >= 0 && cx < WIDTH as i32 && cy < HEIGHT as i32 {
+                if let Tile::Flagged = self.tile(cx as usize, cy as usize) {
+                    count += 1;
+                }
+            }
+        }
+
         count
     }
 
