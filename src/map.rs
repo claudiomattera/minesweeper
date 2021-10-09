@@ -108,16 +108,21 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
                         rect(x + 1, y + 1, 8, 8);
                     }
                     Tile::Uncovered => {
-                        let neighbour_mines = self.count_neighbour_mines(tx, ty);
-                        if neighbour_mines > 0 {
+                        if let Some(_) = self.mines_positions.iter().find(|(mx, my)| (*mx, *my) == (tx, ty)) {
                             draw_colors.set(0x2240);
-                            FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8 * neighbour_mines as u32, 0);
+                            FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8 * 7, 8 * 8);
                         } else {
-                            draw_colors.set(0x2);
-                            vline(x, y, 9);
-                            hline(x, y, 9);
-                            draw_colors.set(0x1);
-                            rect(x + 1, y + 1, 8, 8);
+                            let neighbour_mines = self.count_neighbour_mines(tx, ty);
+                            if neighbour_mines > 0 {
+                                draw_colors.set(0x2240);
+                                FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8 * neighbour_mines as u32, 0);
+                            } else {
+                                draw_colors.set(0x2);
+                                vline(x, y, 9);
+                                hline(x, y, 9);
+                                draw_colors.set(0x1);
+                                rect(x + 1, y + 1, 8, 8);
+                            }
                         }
                     }
                 }
