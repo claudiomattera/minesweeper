@@ -19,6 +19,8 @@ use crate::wasm4::{hline, rect, vline};
 
 pub type Map10x10x10 = Map<10, 10, 100, 10>;
 
+const TILE_SIZE: u32 = 10;
+
 #[derive(Clone, Copy)]
 pub struct Map<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_COUNT: usize> {
     pub mines_positions: [(usize, usize); MINES_COUNT],
@@ -117,51 +119,36 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
     }
 
     pub fn draw(&self) {
-        let draw_colors = DrawColors::new();
         for tx in 0..WIDTH {
             for ty in 0..HEIGHT {
                 let tile = self.tile(tx, ty);
 
-                let x = tx as i32 * 10;
-                let y = ty as i32 * 10;
+                let x = tx as i32 * TILE_SIZE as i32;
+                let y = ty as i32 * TILE_SIZE as i32;
 
                 match tile {
                     Tile::Covered => {
-                        draw_colors.set(0x2);
-                        vline(x, y, 9);
-                        hline(x, y, 9);
-                        draw_colors.set(0x3);
-                        rect(x + 1, y + 1, 8, 8);
+                        self.draw_tile_border(x, y);
+                        self.draw_tile_cover(x, y);
                     }
                     Tile::Uncovered => {
                         if let Some(_) = self.mines_positions.iter().find(|(mx, my)| (*mx, *my) == (tx, ty)) {
-                            draw_colors.set(0x2240);
-                            FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8 * 7, 8 * 8);
+                            self.draw_tile_border(x, y);
+                            self.draw_tile_character(x, y, Character::Mine);
                         } else {
                             let neighbour_mines = self.count_neighbour_mines(tx, ty);
                             if neighbour_mines > 0 {
-                                draw_colors.set(0x2);
-                                vline(x, y, 9);
-                                hline(x, y, 9);
-                                draw_colors.set(0x2240);
-                                FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8 * neighbour_mines as u32, 0);
+                                self.draw_tile_border(x, y);
+                                self.draw_tile_character(x, y, Character::Number(neighbour_mines));
                             } else {
-                                draw_colors.set(0x2);
-                                vline(x, y, 9);
-                                hline(x, y, 9);
-                                draw_colors.set(0x1);
-                                rect(x + 1, y + 1, 8, 8);
+                                self.draw_tile_border(x, y);
                             }
                         }
                     }
                     Tile::Flagged => {
-                        draw_colors.set(0x2);
-                        vline(x, y, 9);
-                        hline(x, y, 9);
-                        draw_colors.set(0x3);
-                        rect(x + 1, y + 1, 8, 8);
-                        draw_colors.set(0x2240);
-                        FONT_SPRITE.blit_sub(x + 1, y + 1, 8, 8, 8, 8);
+                        self.draw_tile_border(x, y);
+                        self.draw_tile_cover(x, y);
+                        self.draw_tile_character(x, y, Character::Flag);
                     }
                 }
             }
@@ -223,11 +210,41 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
     fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
         if mouse_x < 0 || mouse_y < 0 {
             None
-        } else if mouse_x / 10 > WIDTH as i16 || mouse_y / 10 > WIDTH as i16 {
+        } else if mouse_x / TILE_SIZE as i16 > WIDTH as i16 || mouse_y / TILE_SIZE as i16 > WIDTH as i16 {
             None
         } else {
-            let (x, y) = (mouse_x / 10, mouse_y / 10);
+            let (x, y) = (mouse_x / TILE_SIZE as i16, mouse_y / TILE_SIZE as i16);
             Some((x as usize, y as usize))
         }
     }
+
+    fn draw_tile_border(&self, x: i32, y: i32) {
+        let draw_colors = DrawColors::new();
+        draw_colors.set(0x2);
+        vline(x, y, TILE_SIZE - 1);
+        hline(x, y, TILE_SIZE - 1);
+    }
+
+    fn draw_tile_cover(&self, x: i32, y: i32) {
+        let draw_colors = DrawColors::new();
+        draw_colors.set(0x3);
+        rect(x + 1, y + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+    }
+
+    fn draw_tile_character(&self, x: i32, y: i32, c: Character) {
+        let offset = ((TILE_SIZE - 8) / 2) as i32;
+        let draw_colors = DrawColors::new();
+        draw_colors.set(0x2240);
+        match c {
+            Character::Number(n) => FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8 * n as u32, 0),
+            Character::Mine => FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8 * 7, 8 * 8),
+            Character::Flag => FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8, 8),
+        }
+    }
+}
+
+enum Character {
+    Number(usize),
+    Mine,
+    Flag,
 }
