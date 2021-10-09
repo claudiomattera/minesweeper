@@ -52,8 +52,7 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         }
     }
 
-    pub fn flag_tile(&mut self, mouse_x: usize, mouse_y: usize) {
-        let (tx, ty) = (mouse_x / WIDTH, mouse_y / HEIGHT);
+    fn flag_tile(&mut self, tx: usize, ty: usize) {
         match self.tile(tx, ty) {
             Tile::Uncovered => {}
             Tile::Covered => self.flag_individual_tile(tx, ty),
@@ -61,9 +60,19 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         }
     }
 
-    pub fn uncover_tile(&mut self, mouse_x: usize, mouse_y: usize) {
-        let (initial_x, initial_y) = (mouse_x / WIDTH, mouse_y / HEIGHT);
+    pub fn handle_left_click(&mut self, mouse_x: i16, mouse_y: i16) {
+        if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
+            self.uncover_tile(x, y)
+        }
+    }
 
+    pub fn handle_right_click(&mut self, mouse_x: i16, mouse_y: i16) {
+        if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
+            self.flag_tile(x, y)
+        }
+    }
+
+    fn uncover_tile(&mut self, initial_x: usize, initial_y: usize) {
         let mut preallocated_space = alloc_stack!([(usize, usize); TOTAL]);
         let mut tiles_to_uncover = FixedVec::new(&mut preallocated_space);
         tiles_to_uncover.push((initial_x, initial_y))
@@ -209,5 +218,16 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
 
     fn unflag_individual_tile(&mut self, x: usize, y: usize) {
         self.tiles[x + y * WIDTH] = Tile::Covered;
+    }
+
+    fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
+        if mouse_x < 0 || mouse_y < 0 {
+            None
+        } else if mouse_x / 10 > WIDTH as i16 || mouse_y / 10 > WIDTH as i16 {
+            None
+        } else {
+            let (x, y) = (mouse_x / 10, mouse_y / 10);
+            Some((x as usize, y as usize))
+        }
     }
 }

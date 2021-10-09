@@ -37,13 +37,13 @@ impl InGameState {
             if mouse.left_clicked() {
                 let (x, y) = mouse.coordinates();
                 let mut map = self.map;
-                map.uncover_tile(x as usize, y as usize);
+                map.handle_left_click(x, y);
                 return Transition::Switch(State::InGame(InGameState { map }));
             }
             if mouse.right_clicked() {
                 let (x, y) = mouse.coordinates();
                 let mut map = self.map;
-                map.flag_tile(x as usize, y as usize);
+                map.handle_right_click(x, y);
                 return Transition::Switch(State::InGame(InGameState { map }));
             }
         }
