@@ -13,6 +13,9 @@ use crate::graphics::DrawColors;
 mod mainmenu;
 use mainmenu::MainMenuState;
 
+mod ingame;
+use ingame::InGameState;
+
 pub static mut STATE_MACHINE: Machine = Machine {
     states_stack: [State::Initial; MAX_STATES_COUNT],
     current_state_index: 0,
@@ -76,6 +79,7 @@ pub enum Transition {
 pub enum State {
     Initial,
     MainMenu(MainMenuState),
+    InGame(InGameState),
 }
 
 impl State {
@@ -83,6 +87,7 @@ impl State {
         match self {
             State::Initial => "initial",
             State::MainMenu(_) => "mainmenu",
+            State::InGame(_) => "ingame",
         }
     }
 
@@ -90,6 +95,7 @@ impl State {
         match self {
             State::Initial => {}
             State::MainMenu(s) => s.draw(),
+            State::InGame(s) => s.draw(),
         }
     }
 
@@ -97,6 +103,7 @@ impl State {
         match self {
             State::Initial => Transition::Push(State::MainMenu(MainMenuState::new())),
             State::MainMenu(state) => state.update(mouse),
+            State::InGame(state) => state.update(mouse),
         }
     }
 }

@@ -5,11 +5,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::mouse::Mouse;
-
 use crate::graphics::DrawColors;
 use crate::wasm4::{blit, text, BLIT_1BPP, BUTTON_1, GAMEPAD1};
 
-use super::{State, Transition};
+use super::{InGameState, State, Transition};
 
 #[derive(Clone, Copy)]
 pub struct MainMenuState {}
@@ -35,7 +34,7 @@ impl MainMenuState {
 
     pub fn update(self, mouse: Option<&Mouse>) -> Transition {
         if mouse.map(Mouse::left_clicked).unwrap_or(false) {
-            Transition::Switch(State::MainMenu(self))
+            Transition::Switch(State::InGame(InGameState::new()))
         } else {
             Transition::Switch(State::MainMenu(self))
         }

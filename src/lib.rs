@@ -18,6 +18,8 @@ mod debug;
 
 mod graphics;
 
+mod map;
+
 mod mouse;
 use mouse::Mouse;
 
