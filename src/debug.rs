@@ -41,5 +41,5 @@ macro_rules! debug {
 #[cfg(not(feature = "debug"))]
 #[macro_export]
 macro_rules! debug {
-    ( $format:expr $(, $arg:expr)* ) => {};
+    ( $format:expr $(, $arg:expr)* ) => {{}};
 }
