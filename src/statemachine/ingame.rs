@@ -5,21 +5,23 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::debug;
-use crate::map::Map10x10x10;
+use crate::map::Map;
 use crate::mouse::Mouse;
 
 use super::{State, Transition};
 
 #[derive(Clone, Copy)]
 pub struct InGameState {
-    map: Map10x10x10,
+    map: Map<10>,
 }
 
 impl InGameState {
     pub fn new() -> Self {
         let seed = 0;
         debug!("Creating map with seed {}", seed);
-        let map = Map10x10x10::from_random_seed(seed, (10, 20));
+        let width = 10;
+        let height = 11;
+        let map = Map::<10>::from_random_seed(seed, width, height, (10, 20));
         for (x, y) in map.mines_positions {
             debug!("Mine: {}, {}", x, y);
         }

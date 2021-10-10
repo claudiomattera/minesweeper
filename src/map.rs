@@ -17,20 +17,18 @@ use crate::debug;
 use crate::graphics::DrawColors;
 use crate::wasm4::{hline, rect, vline};
 
-pub type Map10x10x10 = Map<10, 10, 100, 10>;
-
 const TILE_SIZE: u32 = 10;
+const MAX_WIDTH: usize = 16;
+const MAX_HEIGHT: usize = 16;
+const MAX_SIZE: usize = MAX_WIDTH * MAX_HEIGHT;
 
 #[derive(Clone, Copy)]
-pub struct Map<
-    const WIDTH: usize,
-    const HEIGHT: usize,
-    const TOTAL: usize,
-    const MINES_COUNT: usize,
-> {
+pub struct Map<const MINES_COUNT: usize> {
     offset: (i32, i32),
     pub mines_positions: [(usize, usize); MINES_COUNT],
-    tiles: [Tile; TOTAL],
+    tiles: [Tile; MAX_SIZE],
+    width: usize,
+    height: usize,
 }
 
 #[derive(Clone, Copy)]
@@ -40,26 +38,30 @@ enum Tile {
     Flagged,
 }
 
-impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_COUNT: usize>
-    Map<WIDTH, HEIGHT, TOTAL, MINES_COUNT>
+impl<const MINES_COUNT: usize> Map<MINES_COUNT>
 {
-    pub fn from_random_seed(seed: u64, offset: (i32, i32)) -> Self {
+    pub fn from_random_seed(seed: u64, width: usize, height: usize, offset: (i32, i32)) -> Self {
+        debug_assert!(width <= MAX_WIDTH);
+        debug_assert!(height <= MAX_HEIGHT);
+
         let mut mines_positions = [(0, 0); MINES_COUNT];
         let mut generator = XorShiftRng::seed_from_u64(seed);
         for i in 0..MINES_COUNT {
-            let mut x = generator.next_u32() as usize % WIDTH;
-            let mut y = generator.next_u32() as usize % HEIGHT;
+            let mut x = generator.next_u32() as usize % width;
+            let mut y = generator.next_u32() as usize % height;
             while mines_positions[0..i].iter().any(|pos| *pos == (x, y)) {
-                x = generator.next_u32() as usize % WIDTH;
-                y = generator.next_u32() as usize % HEIGHT;
+                x = generator.next_u32() as usize % width;
+                y = generator.next_u32() as usize % height;
             }
             mines_positions[i] = (x, y);
         }
-        let tiles = [Tile::Covered; TOTAL];
+        let tiles = [Tile::Covered; MAX_SIZE];
         Self {
             offset,
             mines_positions,
             tiles,
+            width,
+            height,
         }
     }
 
@@ -84,7 +86,7 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
     }
 
     fn uncover_tile(&mut self, initial_x: usize, initial_y: usize) {
-        let mut preallocated_space = alloc_stack!([(usize, usize); TOTAL]);
+        let mut preallocated_space = alloc_stack!([(usize, usize); MAX_SIZE]);
         let mut tiles_to_uncover = FixedVec::new(&mut preallocated_space);
         tiles_to_uncover
             .push((initial_x, initial_y))
@@ -114,7 +116,7 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
                             (x - 1, y),
                         ];
                         for (cx, cy) in candidates {
-                            if cx >= 0 && cy >= 0 && cx < WIDTH as i32 && cy < HEIGHT as i32 {
+                            if cx >= 0 && cy >= 0 && cx < self.width as i32 && cy < self.height as i32 {
                                 let tile = (cx as usize, cy as usize);
                                 if !tiles_to_uncover.iter().any(|t| *t == tile) {
                                     tiles_to_uncover
@@ -131,8 +133,8 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
     }
 
     pub fn draw(&self) {
-        for tx in 0..WIDTH {
-            for ty in 0..HEIGHT {
+        for tx in 0..self.width {
+            for ty in 0..self.height {
                 let tile = self.tile(tx, ty);
 
                 let x = tx as i32 * TILE_SIZE as i32;
@@ -193,7 +195,7 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
             (x - 1, y),
         ];
         for (cx, cy) in candidates {
-            if cx >= 0 && cy >= 0 && cx < WIDTH as i32 && cy < HEIGHT as i32 {
+            if cx >= 0 && cy >= 0 && cx < self.width as i32 && cy < self.height as i32 {
                 if let Tile::Flagged = self.tile(cx as usize, cy as usize) {
                     count += 1;
                 }
@@ -204,19 +206,19 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
     }
 
     fn tile(&self, x: usize, y: usize) -> &Tile {
-        &self.tiles[x + y * WIDTH]
+        &self.tiles[x + y * self.width]
     }
 
     fn uncover_individual_tile(&mut self, x: usize, y: usize) {
-        self.tiles[x + y * WIDTH] = Tile::Uncovered;
+        self.tiles[x + y * self.width] = Tile::Uncovered;
     }
 
     fn flag_individual_tile(&mut self, x: usize, y: usize) {
-        self.tiles[x + y * WIDTH] = Tile::Flagged;
+        self.tiles[x + y * self.width] = Tile::Flagged;
     }
 
     fn unflag_individual_tile(&mut self, x: usize, y: usize) {
-        self.tiles[x + y * WIDTH] = Tile::Covered;
+        self.tiles[x + y * self.width] = Tile::Covered;
     }
 
     fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
@@ -224,8 +226,8 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
         let mouse_y = mouse_y - self.offset.1 as i16;
         if mouse_x < 0 || mouse_y < 0 {
             None
-        } else if mouse_x / TILE_SIZE as i16 >= WIDTH as i16
-            || mouse_y / TILE_SIZE as i16 >= HEIGHT as i16
+        } else if mouse_x / TILE_SIZE as i16 >= self.width as i16
+            || mouse_y / TILE_SIZE as i16 >= self.height as i16
         {
             None
         } else {
