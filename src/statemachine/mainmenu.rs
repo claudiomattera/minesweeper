@@ -4,8 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::mouse::Mouse;
 use crate::graphics::DrawColors;
+use crate::mouse::Mouse;
 use crate::wasm4::{blit, text, BLIT_1BPP, BUTTON_1, GAMEPAD1};
 
 use super::{InGameState, State, Transition};

@@ -22,7 +22,12 @@ pub type Map10x10x10 = Map<10, 10, 100, 10>;
 const TILE_SIZE: u32 = 10;
 
 #[derive(Clone, Copy)]
-pub struct Map<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_COUNT: usize> {
+pub struct Map<
+    const WIDTH: usize,
+    const HEIGHT: usize,
+    const TOTAL: usize,
+    const MINES_COUNT: usize,
+> {
     offset: (i32, i32),
     pub mines_positions: [(usize, usize); MINES_COUNT],
     tiles: [Tile; TOTAL],
@@ -35,7 +40,9 @@ enum Tile {
     Flagged,
 }
 
-impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_COUNT: usize> Map<WIDTH, HEIGHT, TOTAL, MINES_COUNT> {
+impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_COUNT: usize>
+    Map<WIDTH, HEIGHT, TOTAL, MINES_COUNT>
+{
     pub fn from_random_seed(seed: u64, offset: (i32, i32)) -> Self {
         let mut mines_positions = [(0, 0); MINES_COUNT];
         let mut generator = XorShiftRng::seed_from_u64(seed);
@@ -60,7 +67,7 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         match self.tile(tx, ty) {
             Tile::Uncovered => {}
             Tile::Covered => self.flag_individual_tile(tx, ty),
-            Tile::Flagged => self.unflag_individual_tile(tx, ty)
+            Tile::Flagged => self.unflag_individual_tile(tx, ty),
         }
     }
 
@@ -79,7 +86,8 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
     fn uncover_tile(&mut self, initial_x: usize, initial_y: usize) {
         let mut preallocated_space = alloc_stack!([(usize, usize); TOTAL]);
         let mut tiles_to_uncover = FixedVec::new(&mut preallocated_space);
-        tiles_to_uncover.push((initial_x, initial_y))
+        tiles_to_uncover
+            .push((initial_x, initial_y))
             .expect("Pushing to a full vector");
 
         while let Some((x, y)) = tiles_to_uncover.pop() {
@@ -109,7 +117,9 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
                             if cx >= 0 && cy >= 0 && cx < WIDTH as i32 && cy < HEIGHT as i32 {
                                 let tile = (cx as usize, cy as usize);
                                 if let None = tiles_to_uncover.iter().find(|t| **t == tile) {
-                                    tiles_to_uncover.push(tile).expect("Pushing to a full vector");
+                                    tiles_to_uncover
+                                        .push(tile)
+                                        .expect("Pushing to a full vector");
                                 }
                             }
                         }
@@ -134,7 +144,11 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
                         self.draw_tile_cover(x, y);
                     }
                     Tile::Uncovered => {
-                        if let Some(_) = self.mines_positions.iter().find(|(mx, my)| (*mx, *my) == (tx, ty)) {
+                        if let Some(_) = self
+                            .mines_positions
+                            .iter()
+                            .find(|(mx, my)| (*mx, *my) == (tx, ty))
+                        {
                             self.draw_tile_border(x, y);
                             self.draw_tile_character(x, y, Character::Mine);
                         } else {
@@ -214,7 +228,9 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         let mouse_y = mouse_y - self.offset.1 as i16;
         if mouse_x < 0 || mouse_y < 0 {
             None
-        } else if mouse_x / TILE_SIZE as i16 >= WIDTH as i16 || mouse_y / TILE_SIZE as i16 >= HEIGHT as i16 {
+        } else if mouse_x / TILE_SIZE as i16 >= WIDTH as i16
+            || mouse_y / TILE_SIZE as i16 >= HEIGHT as i16
+        {
             None
         } else {
             let (x, y) = (mouse_x / TILE_SIZE as i16, mouse_y / TILE_SIZE as i16);
@@ -232,7 +248,12 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
     fn draw_tile_cover(&self, x: i32, y: i32) {
         let draw_colors = DrawColors::new();
         draw_colors.set(0x3);
-        rect(self.offset.0 + x + 1, self.offset.1 + y + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+        rect(
+            self.offset.0 + x + 1,
+            self.offset.1 + y + 1,
+            TILE_SIZE - 2,
+            TILE_SIZE - 2,
+        );
     }
 
     fn draw_tile_character(&self, x: i32, y: i32, c: Character) {
@@ -240,9 +261,30 @@ impl <const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_C
         let draw_colors = DrawColors::new();
         draw_colors.set(0x2240);
         match c {
-            Character::Number(n) => FONT_SPRITE.blit_sub(self.offset.0 + x + offset, self.offset.1 + y + offset, 8, 8, 8 * n as u32, 0),
-            Character::Mine => FONT_SPRITE.blit_sub(self.offset.0 + x + offset, self.offset.1 + y + offset, 8, 8, 8 * 7, 8 * 8),
-            Character::Flag => FONT_SPRITE.blit_sub(self.offset.0 + x + offset, self.offset.1 + y + offset, 8, 8, 8, 8),
+            Character::Number(n) => FONT_SPRITE.blit_sub(
+                self.offset.0 + x + offset,
+                self.offset.1 + y + offset,
+                8,
+                8,
+                8 * n as u32,
+                0,
+            ),
+            Character::Mine => FONT_SPRITE.blit_sub(
+                self.offset.0 + x + offset,
+                self.offset.1 + y + offset,
+                8,
+                8,
+                8 * 7,
+                8 * 8,
+            ),
+            Character::Flag => FONT_SPRITE.blit_sub(
+                self.offset.0 + x + offset,
+                self.offset.1 + y + offset,
+                8,
+                8,
+                8,
+                8,
+            ),
         }
     }
 }

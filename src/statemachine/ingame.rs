@@ -4,9 +4,9 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::mouse::Mouse;
 use crate::debug;
 use crate::map::Map10x10x10;
+use crate::mouse::Mouse;
 
 use super::{State, Transition};
 

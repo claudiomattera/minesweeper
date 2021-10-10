@@ -60,12 +60,18 @@ impl Machine {
                 );
                 self.current_state_index += 1;
                 self.states_stack[self.current_state_index] = state;
-                debug!("Current state: {}",self.states_stack[self.current_state_index].name());
+                debug!(
+                    "Current state: {}",
+                    self.states_stack[self.current_state_index].name(),
+                );
             }
             Transition::Pop => {
                 debug!("Popping {}th state from stack", self.current_state_index);
                 self.current_state_index -= 1;
-                debug!("Current state: {}",self.states_stack[self.current_state_index].name());
+                debug!(
+                    "Current state: {}",
+                    self.states_stack[self.current_state_index].name(),
+                );
             }
         }
     }
