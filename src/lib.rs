@@ -9,6 +9,7 @@
 #[cfg(target_family = "wasm")]
 use core::arch::wasm32;
 
+#[cfg(target_family = "wasm")]
 use core::panic::PanicInfo;
 
 #[cfg(feature = "buddy-alloc")]
