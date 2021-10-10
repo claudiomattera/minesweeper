@@ -22,7 +22,7 @@ impl DrawColors {
             let mask_shift = (index) * 4;
             let mask: u16 = 0xf000 >> mask_shift;
             let rest = self.0 & !mask;
-            let new_shift = (2 - index + 1) * 4;
+            let new_shift = (3 - index) * 4;
             let new = value << new_shift;
             self.0 = rest | new;
         }
