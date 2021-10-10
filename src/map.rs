@@ -49,7 +49,7 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
         for i in 0..MINES_COUNT {
             let mut x = generator.next_u32() as usize % WIDTH;
             let mut y = generator.next_u32() as usize % HEIGHT;
-            while let Some(_) = mines_positions[0..i].iter().find(|pos| **pos == (x, y)) {
+            while mines_positions[0..i].iter().any(|pos| *pos == (x, y)) {
                 x = generator.next_u32() as usize % WIDTH;
                 y = generator.next_u32() as usize % HEIGHT;
             }
@@ -116,7 +116,7 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
                         for (cx, cy) in candidates {
                             if cx >= 0 && cy >= 0 && cx < WIDTH as i32 && cy < HEIGHT as i32 {
                                 let tile = (cx as usize, cy as usize);
-                                if let None = tiles_to_uncover.iter().find(|t| **t == tile) {
+                                if !tiles_to_uncover.iter().any(|t| *t == tile) {
                                     tiles_to_uncover
                                         .push(tile)
                                         .expect("Pushing to a full vector");
@@ -138,31 +138,27 @@ impl<const WIDTH: usize, const HEIGHT: usize, const TOTAL: usize, const MINES_CO
                 let x = tx as i32 * TILE_SIZE as i32;
                 let y = ty as i32 * TILE_SIZE as i32;
 
+                self.draw_tile_border(x, y);
+
                 match tile {
                     Tile::Covered => {
-                        self.draw_tile_border(x, y);
                         self.draw_tile_cover(x, y);
                     }
                     Tile::Uncovered => {
-                        if let Some(_) = self
+                        if self
                             .mines_positions
                             .iter()
-                            .find(|(mx, my)| (*mx, *my) == (tx, ty))
+                            .any(|(mx, my)| (*mx, *my) == (tx, ty))
                         {
-                            self.draw_tile_border(x, y);
                             self.draw_tile_character(x, y, Character::Mine);
                         } else {
                             let neighbour_mines = self.count_neighbour_mines(tx, ty);
                             if neighbour_mines > 0 {
-                                self.draw_tile_border(x, y);
                                 self.draw_tile_character(x, y, Character::Number(neighbour_mines));
-                            } else {
-                                self.draw_tile_border(x, y);
                             }
                         }
                     }
                     Tile::Flagged => {
-                        self.draw_tile_border(x, y);
                         self.draw_tile_cover(x, y);
                         self.draw_tile_character(x, y, Character::Flag);
                     }
