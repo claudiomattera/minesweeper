@@ -62,7 +62,7 @@ impl Machine {
                 self.states_stack[self.current_state_index] = state;
                 debug!(
                     "Current state: {}",
-                    self.states_stack[self.current_state_index].name(),
+                    self.states_stack[self.current_state_index].name()
                 );
             }
             Transition::Pop => {
@@ -70,7 +70,7 @@ impl Machine {
                 self.current_state_index -= 1;
                 debug!(
                     "Current state: {}",
-                    self.states_stack[self.current_state_index].name(),
+                    self.states_stack[self.current_state_index].name()
                 );
             }
         }
