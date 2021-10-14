@@ -10,7 +10,6 @@ use once_cell::unsync::Lazy;
 mod alloc;
 
 mod assets;
-use assets::FONT_SPRITE;
 
 mod debug;
 
@@ -61,12 +60,10 @@ fn update() {
         }
     }
 
-    DrawColors.set(0x2240);
-    FONT_SPRITE.blit_sub(160 - 32, 2, 8, 8, 8 * 7, 8 * 8);
     let remaining_mines = map.count_remaining_mines();
-    let s = format!("{:02}", remaining_mines);
+    let s = format!("Mines:{:02}", remaining_mines);
     DrawColors.set(0x03);
-    text(&s, 160 - 20, 2);
+    text(&s, 160 - 64, 2);
 
     if map.has_stepped_on_mine() {
         text("GAME OVER!!!", 2, 10);
@@ -80,7 +77,7 @@ fn update() {
         timer.update();
     }
 
-    let s = format!("Time: {:3}", timer.get());
+    let s = format!("Time:{:3}", timer.get());
     text(s, 2, 2);
 
     let pos = Mouse.coordinates();
