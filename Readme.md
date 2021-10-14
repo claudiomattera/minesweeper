@@ -7,6 +7,7 @@ A minesweeper game using WASM4 engine
 
 This game is a reimplementation of the classical Minesweeper game.
 
+![Screenshot](./screenshot.png)
 
 Implementation
 ----
