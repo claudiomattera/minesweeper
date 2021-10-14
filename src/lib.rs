@@ -51,17 +51,18 @@ fn start() {
 fn update() {
     let map = unsafe { &mut MAP };
     let timer = unsafe { &mut TIMER };
-    timer.update();
 
     map.draw();
 
-    if Mouse.left_clicked() {
-        let (x, y) = Mouse.coordinates();
-        map.handle_left_click(x, y);
-    }
-    if Mouse.right_clicked() {
-        let (x, y) = Mouse.coordinates();
-        map.handle_right_click(x, y);
+    if !map.has_stepped_on_mine() {
+        if Mouse.left_clicked() {
+            let (x, y) = Mouse.coordinates();
+            map.handle_left_click(x, y);
+        }
+        if Mouse.right_clicked() {
+            let (x, y) = Mouse.coordinates();
+            map.handle_right_click(x, y);
+        }
     }
 
     DrawColors.set(0x2240);
@@ -77,6 +78,12 @@ fn update() {
     let s = format!("{:02}", remaining_mines);
     DrawColors.set(0x03);
     text(&s, 160 - 20, 2);
+
+    if map.has_stepped_on_mine() {
+        text("GAME OVER!!!", 2, 10);
+    } else {
+        timer.update();
+    }
 
     let s = format!("Time: {:3}", timer.get());
     text(s, 2, 2);

@@ -72,6 +72,19 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
         mines_positions
     }
 
+    pub fn has_stepped_on_mine(&self) -> bool {
+        self.mines_positions
+            .get()
+            .map(|mines_positions| {
+                mines_positions.iter()
+                .map(|(x, y)| self.tile(*x, *y))
+                .any(|tile| {
+                    if let Tile::Uncovered = tile { true } else { false }
+                })
+            })
+            .unwrap_or(false)
+    }
+
     fn flag_tile(&mut self, tx: usize, ty: usize) {
         match self.tile(tx, ty) {
             Tile::Uncovered => {}
