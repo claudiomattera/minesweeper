@@ -9,6 +9,22 @@ This game is a reimplementation of the classical Minesweeper game.
 
 ![Screenshot](./screenshot.png)
 
+
+Playing
+----
+
+The goal of the game is to find all mines covered by a grid of tiles, by uncovering all safe tiles.
+Uncovering a mine means game over!
+
+The game is controlled through the mouse.
+Left click on a tile to uncover it, right click on a tile to flag it.
+
+Uncovered tiles show the number of adjacent mines, both vertically, horizontally and diagonally (or nothing, when there are no adjacent mines).
+
+Flag tiles which you believe cover a mine.
+After uncovering a tile, if the number of adjacent flagged tiles is equal to the number of adjacent mines, all non-flagged adjacent tiles are also uncovered.
+
+
 Implementation
 ----
 
