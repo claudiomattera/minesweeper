@@ -27,7 +27,7 @@ static mut MAP: Lazy<Map<50>> = Lazy::new(|| {
 });
 
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct InGameState {
 }
 
@@ -83,6 +83,6 @@ impl InGameState {
             timer.update();
         }
 
-        Transition::Switch(State::InGame(self))
+        Transition::Replace(State::InGame(self))
     }
 }

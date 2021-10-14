@@ -11,13 +11,14 @@ use crate::mouse::Mouse;
 use crate::debug;
 
 mod initial;
+use initial::InitialState;
 
 mod ingame;
 use ingame::InGameState;
 
 pub static mut STATE_MACHINE: Lazy<Machine> = Lazy::new(|| {
     Machine {
-        states_stack: vec![State::Initial],
+        states_stack: vec![State::Initial(InitialState::new())],
     }
 });
 
@@ -42,14 +43,19 @@ impl Machine {
     }
 
     pub fn update(&mut self, mouse: &Mouse) {
-        let state: &mut State = self.states_stack.iter_mut().last().expect("Empty state machine!!!");
+        let state: State = self.states_stack
+            .pop()
+            .expect("Empty state machine!!!");
         let transition: Transition = state.update(mouse);
+
         match transition {
-            Transition::Switch(state) => {
-                let _ = self.states_stack.pop();
+            Transition::Replace(state) => {
                 self.states_stack.push(state);
             }
-            Transition::Push(state) => {
+            Transition::Push(old_state, state) => {
+                // First restore old state onto stack
+                self.states_stack.push(old_state);
+
                 debug!("Pushing new state to stack");
                 self.states_stack.push(state);
                 debug!(
@@ -59,7 +65,7 @@ impl Machine {
             }
             Transition::Pop => {
                 debug!("Popping state from stack");
-                let _ = self.states_stack.pop();
+                // Already done at the beginning of this function
                 debug!(
                     "Current state: {}",
                     self.states_stack.iter().last().unwrap().name()
@@ -70,37 +76,35 @@ impl Machine {
 }
 
 pub enum Transition {
-    Switch(State),
-    Push(State),
+    Replace(State),
+    Push(State, State),
     Pop,
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum State {
-    Initial,
+    Initial(InitialState),
     InGame(InGameState),
 }
 
 impl State {
     pub fn name(&self) -> &'static str {
         match self {
-            State::Initial => "initial",
+            State::Initial(_) => "initial",
             State::InGame(_) => "in_game",
         }
     }
 
     pub fn draw(&self) {
         match self {
-            State::Initial => {},
+            State::Initial(s) => s.draw(),
             State::InGame(s) => s.draw(),
         }
     }
 
     pub fn update(self, mouse: &Mouse) -> Transition {
         match self {
-            State::Initial => {
-                Transition::Push(State::InGame(InGameState::new()))
-            }
+            State::Initial(state) => state.update(mouse),
             State::InGame(state) => state.update(mouse),
         }
     }
