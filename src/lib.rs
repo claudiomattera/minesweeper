@@ -23,6 +23,12 @@ use map::Map;
 mod mouse;
 use mouse::Mouse;
 
+mod ticker;
+use ticker::Ticker;
+
+mod timer;
+use timer::Timer;
+
 mod wasm4;
 use wasm4::*;
 
@@ -35,6 +41,10 @@ static mut MAP: Lazy<Map<10>> = Lazy::new(|| {
     map
 });
 
+static mut TIMER: Lazy<Timer> = Lazy::new(|| {
+    Timer::new()
+});
+
 #[no_mangle]
 fn start() {
 }
@@ -42,6 +52,9 @@ fn start() {
 #[no_mangle]
 fn update() {
     let map = unsafe { &mut MAP };
+    let timer = unsafe { &mut TIMER };
+    timer.update();
+
     map.draw();
 
     if Mouse.left_clicked() {
@@ -67,9 +80,13 @@ fn update() {
     DrawColors.set(0x03);
     text(&s, 160 - 20, 2);
 
+    let s = format!("Time: {:3}", timer.get());
+    text(s, 2, 2);
+
     let pos = Mouse.coordinates();
     DrawColors.set(4);
     vline(pos.0 as i32, pos.1 as i32 - 1, 3);
     hline(pos.0 as i32 - 1, pos.1 as i32, 3);
     Mouse.update();
+    Ticker.update();
 }
