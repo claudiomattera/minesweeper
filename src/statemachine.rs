@@ -13,6 +13,9 @@ use crate::debug;
 mod initial;
 use initial::InitialState;
 
+mod pregame;
+use pregame::PreGameState;
+
 mod ingame;
 use ingame::InGameState;
 
@@ -84,6 +87,7 @@ pub enum Transition {
 #[derive(Clone)]
 pub enum State {
     Initial(InitialState),
+    PreGame(PreGameState),
     InGame(InGameState),
 }
 
@@ -91,6 +95,7 @@ impl State {
     pub fn name(&self) -> &'static str {
         match self {
             State::Initial(_) => "initial",
+            State::PreGame(_) => "pre_game",
             State::InGame(_) => "in_game",
         }
     }
@@ -98,6 +103,7 @@ impl State {
     pub fn draw(&self) {
         match self {
             State::Initial(s) => s.draw(),
+            State::PreGame(s) => s.draw(),
             State::InGame(s) => s.draw(),
         }
     }
@@ -105,6 +111,7 @@ impl State {
     pub fn update(self, mouse: &Mouse) -> Transition {
         match self {
             State::Initial(state) => state.update(mouse),
+            State::PreGame(state) => state.update(mouse),
             State::InGame(state) => state.update(mouse),
         }
     }
