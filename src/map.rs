@@ -9,9 +9,6 @@ use core::iter::Iterator;
 use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
-use fixedvec::alloc_stack;
-use fixedvec::FixedVec;
-
 use crate::assets::FONT_SPRITE;
 use crate::debug;
 use crate::graphics::DrawColors;
@@ -22,11 +19,10 @@ const MAX_WIDTH: usize = 16;
 const MAX_HEIGHT: usize = 16;
 const MAX_SIZE: usize = MAX_WIDTH * MAX_HEIGHT;
 
-#[derive(Clone, Copy)]
 pub struct Map<const MINES_COUNT: usize> {
     offset: (i32, i32),
-    pub mines_positions: [(usize, usize); MINES_COUNT],
-    tiles: [Tile; MAX_SIZE],
+    mines_positions: [(usize, usize); MINES_COUNT],
+    tiles: Vec<Tile>,
     width: usize,
     height: usize,
 }
@@ -55,7 +51,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
             }
             mines_positions[i] = (x, y);
         }
-        let tiles = [Tile::Covered; MAX_SIZE];
+        let tiles = vec![Tile::Covered; width * height];
         Self {
             offset,
             mines_positions,
@@ -86,11 +82,9 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
     }
 
     fn uncover_tile(&mut self, initial_x: usize, initial_y: usize) {
-        let mut preallocated_space = alloc_stack!([(usize, usize); MAX_SIZE]);
-        let mut tiles_to_uncover = FixedVec::new(&mut preallocated_space);
+        let mut tiles_to_uncover = Vec::new();
         tiles_to_uncover
-            .push((initial_x, initial_y))
-            .expect("Pushing to a full vector");
+            .push((initial_x, initial_y));
 
         while let Some((x, y)) = tiles_to_uncover.pop() {
             debug!("{} tiles to uncover", tiles_to_uncover.len());
@@ -120,8 +114,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
                                 let tile = (cx as usize, cy as usize);
                                 if !tiles_to_uncover.iter().any(|t| *t == tile) {
                                     tiles_to_uncover
-                                        .push(tile)
-                                        .expect("Pushing to a full vector");
+                                        .push(tile);
                                 }
                             }
                         }
