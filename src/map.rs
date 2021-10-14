@@ -247,15 +247,13 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
     }
 
     fn draw_tile_border(&self, x: i32, y: i32) {
-        let draw_colors = DrawColors::new();
-        draw_colors.set(0x2);
+        DrawColors.set(0x2);
         vline(self.offset.0 + x, self.offset.1 + y, TILE_SIZE - 1);
         hline(self.offset.0 + x, self.offset.1 + y, TILE_SIZE - 1);
     }
 
     fn draw_tile_cover(&self, x: i32, y: i32) {
-        let draw_colors = DrawColors::new();
-        draw_colors.set(0x3);
+        DrawColors.set(0x3);
         rect(
             self.offset.0 + x + 1,
             self.offset.1 + y + 1,
@@ -266,8 +264,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
 
     fn draw_tile_character(&self, x: i32, y: i32, c: Character) {
         let offset = ((TILE_SIZE - 8) / 2) as i32;
-        let draw_colors = DrawColors::new();
-        draw_colors.set(0x2240);
+        DrawColors.set(0x2240);
         match c {
             Character::Number(n) => FONT_SPRITE.blit_sub(
                 self.offset.0 + x + offset,

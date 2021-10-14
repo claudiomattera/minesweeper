@@ -41,7 +41,6 @@ fn start() {
 
 #[no_mangle]
 fn update() {
-    let drawcolors = DrawColors::new();
     let map = unsafe { &mut MAP };
     map.draw();
 
@@ -54,7 +53,7 @@ fn update() {
         map.handle_right_click(x, y);
     }
 
-    drawcolors.set(0x2240);
+    DrawColors.set(0x2240);
     FONT_SPRITE.blit_sub(
         160 - 32,
         2,
@@ -65,12 +64,11 @@ fn update() {
     );
     let remaining_mines = map.count_remaining_mines();
     let s = format!("{:02}", remaining_mines);
-    drawcolors.set(0x03);
+    DrawColors.set(0x03);
     text(&s, 160 - 20, 2);
 
     let pos = Mouse.coordinates();
-    let draw_colors = DrawColors::new();
-    draw_colors.set(4);
+    DrawColors.set(4);
     vline(pos.0 as i32, pos.1 as i32 - 1, 3);
     hline(pos.0 as i32 - 1, pos.1 as i32, 3);
     Mouse.update();
