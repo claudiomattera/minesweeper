@@ -81,6 +81,23 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
         }
     }
 
+    pub fn count_remaining_mines(&self) -> usize {
+        MINES_COUNT - self.count_flagged_mines()
+    }
+
+    fn count_flagged_mines(&self) -> usize {
+        self.tiles
+            .iter()
+            .filter(|tile| {
+                if let Tile::Flagged = tile {
+                    true
+                } else {
+                    false
+                }
+            })
+            .count()
+    }
+
     fn uncover_tile(&mut self, initial_x: usize, initial_y: usize) {
         let mut tiles_to_uncover = Vec::new();
         tiles_to_uncover

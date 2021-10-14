@@ -15,6 +15,7 @@ mod debug;
 
 mod graphics;
 use graphics::DrawColors;
+use assets::FONT_SPRITE;
 
 mod map;
 use map::Map;
@@ -40,6 +41,7 @@ fn start() {
 
 #[no_mangle]
 fn update() {
+    let drawcolors = DrawColors::new();
     let map = unsafe { &mut MAP };
     map.draw();
 
@@ -51,6 +53,20 @@ fn update() {
         let (x, y) = Mouse.coordinates();
         map.handle_right_click(x, y);
     }
+
+    drawcolors.set(0x2240);
+    FONT_SPRITE.blit_sub(
+        160 - 32,
+        2,
+        8,
+        8,
+        8 * 7,
+        8 * 8,
+    );
+    let remaining_mines = map.count_remaining_mines();
+    let s = format!("{:02}", remaining_mines);
+    drawcolors.set(0x03);
+    text(&s, 160 - 20, 2);
 
     let pos = Mouse.coordinates();
     let draw_colors = DrawColors::new();
