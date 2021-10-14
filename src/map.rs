@@ -72,6 +72,10 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
         mines_positions
     }
 
+    pub fn has_started(&self) -> bool {
+        self.mines_positions.get().is_some()
+    }
+
     pub fn has_stepped_on_mine(&self) -> bool {
         self.mines_positions
             .get()

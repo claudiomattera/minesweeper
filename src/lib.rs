@@ -81,13 +81,13 @@ fn update() {
 
     if map.has_stepped_on_mine() {
         text("GAME OVER!!!", 2, 10);
-    } else {
-        timer.update();
     }
 
     if map.has_found_all_mines() {
         text("GAME WON!!!", 2, 10);
-    } else {
+    }
+
+    if map.has_started() && !map.has_stepped_on_mine() && !map.has_found_all_mines() {
         timer.update();
     }
 
