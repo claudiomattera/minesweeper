@@ -4,6 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use once_cell::unsync::OnceCell;
+
 use core::iter::Iterator;
 
 use rand_core::{RngCore, SeedableRng};
@@ -21,7 +23,7 @@ const MAX_SIZE: usize = MAX_WIDTH * MAX_HEIGHT;
 
 pub struct Map<const MINES_COUNT: usize> {
     offset: (i32, i32),
-    mines_positions: [(usize, usize); MINES_COUNT],
+    mines_positions: OnceCell<[(usize, usize); MINES_COUNT]>,
     tiles: Vec<Tile>,
     width: usize,
     height: usize,
@@ -36,29 +38,38 @@ enum Tile {
 
 impl<const MINES_COUNT: usize> Map<MINES_COUNT>
 {
-    pub fn from_random_seed(seed: u64, width: usize, height: usize, offset: (i32, i32)) -> Self {
+    pub fn new(width: usize, height: usize, offset: (i32, i32)) -> Self {
         debug_assert!(width <= MAX_WIDTH);
         debug_assert!(height <= MAX_HEIGHT);
 
-        let mut mines_positions = [(0, 0); MINES_COUNT];
-        let mut generator = XorShiftRng::seed_from_u64(seed);
-        for i in 0..MINES_COUNT {
-            let mut x = generator.next_u32() as usize % width;
-            let mut y = generator.next_u32() as usize % height;
-            while mines_positions[0..i].iter().any(|pos| *pos == (x, y)) {
-                x = generator.next_u32() as usize % width;
-                y = generator.next_u32() as usize % height;
-            }
-            mines_positions[i] = (x, y);
-        }
         let tiles = vec![Tile::Covered; width * height];
         Self {
             offset,
-            mines_positions,
+            mines_positions: OnceCell::new(),
             tiles,
             width,
             height,
         }
+    }
+
+    pub fn mines_from_random_seed(
+        &self,
+        seed: u64,
+        forbidden_x: usize,
+        forbidden_y: usize,
+    ) -> [(usize, usize); MINES_COUNT] {
+        let mut mines_positions = [(0, 0); MINES_COUNT];
+        let mut generator = XorShiftRng::seed_from_u64(seed);
+        for i in 0..MINES_COUNT {
+            let mut x = generator.next_u32() as usize % self.width;
+            let mut y = generator.next_u32() as usize % self.height;
+            while mines_positions[0..i].iter().any(|pos| *pos == (x, y)) || x == forbidden_x && y == forbidden_y {
+                x = generator.next_u32() as usize % self.width;
+                y = generator.next_u32() as usize % self.height;
+            }
+            mines_positions[i] = (x, y);
+        }
+        mines_positions
     }
 
     fn flag_tile(&mut self, tx: usize, ty: usize) {
@@ -99,6 +110,12 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
     }
 
     fn uncover_tile(&mut self, initial_x: usize, initial_y: usize) {
+        let _ = self.mines_positions.get_or_init(|| {
+            let seed = 0;
+            debug!("Creating map with seed {}", seed);
+            self.mines_from_random_seed(seed, initial_x, initial_y)
+        });
+
         let mut tiles_to_uncover = Vec::new();
         tiles_to_uncover
             .push((initial_x, initial_y));
@@ -159,6 +176,8 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
                     Tile::Uncovered => {
                         if self
                             .mines_positions
+                            .get()
+                            .expect("Mines positions not initialized")
                             .iter()
                             .any(|(mx, my)| (*mx, *my) == (tx, ty))
                         {
@@ -181,8 +200,8 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
 
     fn count_neighbour_mines(&self, x: usize, y: usize) -> usize {
         let mut count = 0;
-        for (mx, my) in self.mines_positions {
-            if (mx as i32 - x as i32).abs() <= 1 && (my as i32 - y as i32).abs() <= 1 {
+        for (mx, my) in self.mines_positions.get().expect("Mines positions not initialized") {
+            if (*mx as i32 - x as i32).abs() <= 1 && (*my as i32 - y as i32).abs() <= 1 {
                 count += 1;
             }
         }

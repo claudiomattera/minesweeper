@@ -32,12 +32,10 @@ use timer::Timer;
 mod wasm4;
 use wasm4::*;
 
-static mut MAP: Lazy<Map<10>> = Lazy::new(|| {
-    let seed = 0;
-    debug!("Creating map with seed {}", seed);
+static mut MAP: Lazy<Map<50>> = Lazy::new(|| {
     let width = 16;
     let height = 14;
-    let map = Map::<10>::from_random_seed(seed, width, height, (0, 20));
+    let map = Map::new(width, height, (0, 20));
     map
 });
 
