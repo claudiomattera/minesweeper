@@ -36,8 +36,7 @@ enum Tile {
     Flagged,
 }
 
-impl<const MINES_COUNT: usize> Map<MINES_COUNT>
-{
+impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
     pub fn new(width: usize, height: usize, offset: (i32, i32)) -> Self {
         debug_assert!(width <= MAX_WIDTH);
         debug_assert!(height <= MAX_HEIGHT);
@@ -63,7 +62,9 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
         for i in 0..MINES_COUNT {
             let mut x = generator.next_u32() as usize % self.width;
             let mut y = generator.next_u32() as usize % self.height;
-            while mines_positions[0..i].iter().any(|pos| *pos == (x, y)) || x == forbidden_x && y == forbidden_y {
+            while mines_positions[0..i].iter().any(|pos| *pos == (x, y))
+                || x == forbidden_x && y == forbidden_y
+            {
                 x = generator.next_u32() as usize % self.width;
                 y = generator.next_u32() as usize % self.height;
             }
@@ -80,15 +81,17 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
         self.mines_positions
             .get()
             .map(|mines_positions| {
-                mines_positions.iter()
-                .map(|(x, y)| self.tile(*x, *y))
-                .any(|tile| matches!(tile, Tile::Uncovered))
+                mines_positions
+                    .iter()
+                    .map(|(x, y)| self.tile(*x, *y))
+                    .any(|tile| matches!(tile, Tile::Uncovered))
             })
             .unwrap_or(false)
     }
 
     pub fn has_found_all_mines(&self) -> bool {
-        let uncovered_tiles_count = self.tiles
+        let uncovered_tiles_count = self
+            .tiles
             .iter()
             .filter(|tile| matches!(tile, Tile::Uncovered))
             .count();
@@ -133,9 +136,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
             self.mines_from_random_seed(seed, initial_x, initial_y)
         });
 
-        let mut tiles_to_uncover = Vec::new();
-        tiles_to_uncover
-            .push((initial_x, initial_y));
+        let mut tiles_to_uncover = vec![(initial_x, initial_y)];
 
         while let Some((x, y)) = tiles_to_uncover.pop() {
             debug!("{} tiles to uncover", tiles_to_uncover.len());
@@ -161,11 +162,14 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
                             (x - 1, y),
                         ];
                         for (cx, cy) in candidates {
-                            if cx >= 0 && cy >= 0 && cx < self.width as i32 && cy < self.height as i32 {
+                            if cx >= 0
+                                && cy >= 0
+                                && cx < self.width as i32
+                                && cy < self.height as i32
+                            {
                                 let tile = (cx as usize, cy as usize);
                                 if !tiles_to_uncover.iter().any(|t| *t == tile) {
-                                    tiles_to_uncover
-                                        .push(tile);
+                                    tiles_to_uncover.push(tile);
                                 }
                             }
                         }
@@ -216,13 +220,19 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
     }
 
     fn count_neighbour_mines(&self, x: usize, y: usize) -> usize {
-        let mut count = 0;
-        for (mx, my) in self.mines_positions.get().expect("Mines positions not initialized") {
-            if (*mx as i32 - x as i32).abs() <= 1 && (*my as i32 - y as i32).abs() <= 1 {
-                count += 1;
-            }
-        }
-        count
+        self.mines_positions
+            .get()
+            .map(|mines_positions| {
+                mines_positions
+                    .iter()
+                    .filter(|(mx, my)| {
+                        let horizontally_adjacent = (*mx as i32 - x as i32).abs() <= 1;
+                        let vertically_adjacent = (*my as i32 - y as i32).abs() <= 1;
+                        horizontally_adjacent && vertically_adjacent
+                    })
+                    .count()
+            })
+            .unwrap_or(0)
     }
 
     fn count_neighbour_flags(&self, x: usize, y: usize) -> usize {

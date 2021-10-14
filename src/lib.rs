@@ -10,12 +10,12 @@ use once_cell::unsync::Lazy;
 mod alloc;
 
 mod assets;
+use assets::FONT_SPRITE;
 
 mod debug;
 
 mod graphics;
 use graphics::DrawColors;
-use assets::FONT_SPRITE;
 
 mod map;
 use map::Map;
@@ -41,8 +41,7 @@ static mut MAP: Lazy<Map<50>> = Lazy::new(|| {
 static mut TIMER: Lazy<Timer> = Lazy::new(Timer::new);
 
 #[no_mangle]
-fn start() {
-}
+fn start() {}
 
 #[no_mangle]
 fn update() {
@@ -63,14 +62,7 @@ fn update() {
     }
 
     DrawColors.set(0x2240);
-    FONT_SPRITE.blit_sub(
-        160 - 32,
-        2,
-        8,
-        8,
-        8 * 7,
-        8 * 8,
-    );
+    FONT_SPRITE.blit_sub(160 - 32, 2, 8, 8, 8 * 7, 8 * 8);
     let remaining_mines = map.count_remaining_mines();
     let s = format!("{:02}", remaining_mines);
     DrawColors.set(0x03);
