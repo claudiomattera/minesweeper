@@ -274,14 +274,17 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
                 8 * n as u32,
                 0,
             ),
-            Character::Mine => FONT_SPRITE.blit_sub(
-                self.offset.0 + x + offset,
-                self.offset.1 + y + offset,
-                8,
-                8,
-                8 * 7,
-                8 * 8,
-            ),
+            Character::Mine => {
+                DrawColors.set(0x1142);
+                FONT_SPRITE.blit_sub(
+                    self.offset.0 + x + offset,
+                    self.offset.1 + y + offset,
+                    8,
+                    8,
+                    8 * 7,
+                    8 * 8,
+                );
+            }
             Character::Flag => FONT_SPRITE.blit_sub(
                 self.offset.0 + x + offset,
                 self.offset.1 + y + offset,
