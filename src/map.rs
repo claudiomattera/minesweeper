@@ -85,6 +85,16 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
             .unwrap_or(false)
     }
 
+    pub fn has_found_all_mines(&self) -> bool {
+        let uncovered_tiles_count = self.tiles.iter().filter(|tile| {
+                match tile {
+                    Tile::Uncovered => true,
+                    _ => false,
+                }
+            }).count();
+        uncovered_tiles_count + MINES_COUNT == self.width * self.height
+    }
+
     fn flag_tile(&mut self, tx: usize, ty: usize) {
         match self.tile(tx, ty) {
             Tile::Uncovered => {}

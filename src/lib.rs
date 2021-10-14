@@ -54,7 +54,7 @@ fn update() {
 
     map.draw();
 
-    if !map.has_stepped_on_mine() {
+    if !map.has_stepped_on_mine() && !map.has_found_all_mines() {
         if Mouse.left_clicked() {
             let (x, y) = Mouse.coordinates();
             map.handle_left_click(x, y);
@@ -81,6 +81,12 @@ fn update() {
 
     if map.has_stepped_on_mine() {
         text("GAME OVER!!!", 2, 10);
+    } else {
+        timer.update();
+    }
+
+    if map.has_found_all_mines() {
+        text("GAME WON!!!", 2, 10);
     } else {
         timer.update();
     }
