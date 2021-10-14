@@ -82,20 +82,16 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
             .map(|mines_positions| {
                 mines_positions.iter()
                 .map(|(x, y)| self.tile(*x, *y))
-                .any(|tile| {
-                    if let Tile::Uncovered = tile { true } else { false }
-                })
+                .any(|tile| matches!(tile, Tile::Uncovered))
             })
             .unwrap_or(false)
     }
 
     pub fn has_found_all_mines(&self) -> bool {
-        let uncovered_tiles_count = self.tiles.iter().filter(|tile| {
-                match tile {
-                    Tile::Uncovered => true,
-                    _ => false,
-                }
-            }).count();
+        let uncovered_tiles_count = self.tiles
+            .iter()
+            .filter(|tile| matches!(tile, Tile::Uncovered))
+            .count();
         uncovered_tiles_count + MINES_COUNT == self.width * self.height
     }
 
@@ -126,13 +122,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
     fn count_flagged_mines(&self) -> usize {
         self.tiles
             .iter()
-            .filter(|tile| {
-                if let Tile::Flagged = tile {
-                    true
-                } else {
-                    false
-                }
-            })
+            .filter(|tile| matches!(tile, Tile::Flagged))
             .count()
     }
 
@@ -280,9 +270,9 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT>
     fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
         let mouse_x = mouse_x - self.offset.0 as i16;
         let mouse_y = mouse_y - self.offset.1 as i16;
-        if mouse_x < 0 || mouse_y < 0 {
-            None
-        } else if mouse_x / TILE_SIZE as i16 >= self.width as i16
+        if mouse_x < 0
+            || mouse_y < 0
+            || mouse_x / TILE_SIZE as i16 >= self.width as i16
             || mouse_y / TILE_SIZE as i16 >= self.height as i16
         {
             None

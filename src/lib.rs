@@ -35,13 +35,10 @@ use wasm4::*;
 static mut MAP: Lazy<Map<50>> = Lazy::new(|| {
     let width = 16;
     let height = 14;
-    let map = Map::new(width, height, (0, 20));
-    map
+    Map::new(width, height, (0, 20))
 });
 
-static mut TIMER: Lazy<Timer> = Lazy::new(|| {
-    Timer::new()
-});
+static mut TIMER: Lazy<Timer> = Lazy::new(Timer::new);
 
 #[no_mangle]
 fn start() {
