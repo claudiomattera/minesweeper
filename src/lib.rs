@@ -13,6 +13,8 @@ pub mod assets;
 
 pub mod debug;
 
+pub mod interface;
+
 pub mod graphics;
 use graphics::{DrawColors, Palette};
 

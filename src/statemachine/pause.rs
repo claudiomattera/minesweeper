@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::graphics::{draw_rect, draw_text, DrawColors};
+use crate::interface::draw_message_box;
 use crate::mouse::Mouse;
 
 use super::{State, Transition};
@@ -22,14 +22,7 @@ impl PauseState {
         let x = 16;
         let y = 30;
 
-        DrawColors.set(0x44);
-        draw_rect(x + 3, y + 3, 160 - 2 * x as u32, 30);
-        DrawColors.set(0x21);
-        draw_rect(x, y, 160 - 32, 30);
-
-        DrawColors.set(0x03);
-        draw_text("Game paused", 20, y + 5);
-        draw_text("Click to resume", 20, y + 15);
+        draw_message_box("Game paused\n\nClick to resume", x, y);
     }
 
     pub fn update(self, mouse: &Mouse) -> Transition {
