@@ -4,17 +4,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use once_cell::unsync::OnceCell;
-
 use core::iter::Iterator;
 
-use rand_core::{RngCore, SeedableRng};
-use rand_xorshift::XorShiftRng;
-
-use crate::assets::FONT_SPRITE;
 use crate::debug;
-use crate::graphics::{DrawColors, Tile};
-use crate::wasm4::{hline, rect, vline};
+use crate::graphics::Tile;
 
 const TILE_SIZE: u32 = 10;
 const MAX_WIDTH: usize = 16;

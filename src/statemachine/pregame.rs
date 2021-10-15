@@ -8,7 +8,7 @@ use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use crate::mouse::Mouse;
-use crate::graphics::{DrawColors, Tile};
+use crate::graphics::DrawColors;
 use crate::Map;
 use crate::wasm4::text;
 
