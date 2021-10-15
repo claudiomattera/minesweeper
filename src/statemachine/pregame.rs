@@ -14,7 +14,7 @@ use crate::Map;
 
 use super::{InGameState, State, Transition};
 
-const MINES_COUNT: usize = 5;
+const MINES_COUNT: usize = 30;
 
 #[derive(Clone)]
 pub struct PreGameState {
