@@ -23,6 +23,9 @@ use gameover::GameOverState;
 mod gamewon;
 use gamewon::GameWonState;
 
+mod mainmenu;
+use mainmenu::MainMenuState;
+
 mod pause;
 use pause::PauseState;
 
@@ -126,6 +129,9 @@ pub enum State {
 
     /// The state of paused game
     Pause(PauseState),
+
+    /// The state of main menu
+    MainMenu(MainMenuState),
 }
 
 impl State {
@@ -138,6 +144,7 @@ impl State {
             State::GameOver(_) => "game_over",
             State::GameWon(_) => "game_won",
             State::Pause(_) => "pause",
+            State::MainMenu(_) => "main_menu",
         }
     }
 
@@ -152,6 +159,7 @@ impl State {
             State::GameOver(s) => s.draw(),
             State::GameWon(s) => s.draw(),
             State::Pause(s) => s.draw(),
+            State::MainMenu(s) => s.draw(),
         }
     }
 
@@ -166,6 +174,7 @@ impl State {
             State::GameOver(state) => state.update(mouse),
             State::GameWon(state) => state.update(mouse),
             State::Pause(state) => state.update(mouse),
+            State::MainMenu(state) => state.update(mouse),
         }
     }
 }

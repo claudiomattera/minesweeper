@@ -10,7 +10,7 @@ use crate::mouse::Mouse;
 use crate::Map;
 use crate::Timer;
 
-use super::{PreGameState, State, Transition};
+use super::{MainMenuState, State, Transition};
 
 #[derive(Clone)]
 pub struct GameWonState {
@@ -44,7 +44,7 @@ impl GameWonState {
 
     pub fn update(self, mouse: &Mouse) -> Transition {
         if mouse.left_clicked() {
-            return Transition::Replace(State::PreGame(PreGameState::new()));
+            return Transition::Replace(State::MainMenu(MainMenuState::new()));
         }
 
         Transition::Replace(State::GameWon(self))
