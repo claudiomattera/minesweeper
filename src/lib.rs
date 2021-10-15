@@ -12,7 +12,7 @@ mod assets;
 mod debug;
 
 mod graphics;
-use graphics::DrawColors;
+use graphics::{DrawColors, Palette};
 
 mod map;
 use map::Map;
@@ -33,7 +33,9 @@ mod wasm4;
 use wasm4::*;
 
 #[no_mangle]
-fn start() {}
+fn start() {
+    Palette::Hollow.set();
+}
 
 #[no_mangle]
 fn update() {

@@ -7,6 +7,9 @@
 mod drawcolors;
 pub use drawcolors::DrawColors;
 
+mod palette;
+pub use palette::Palette;
+
 mod sprite;
 pub use sprite::Sprite;
 
