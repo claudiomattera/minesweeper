@@ -8,9 +8,9 @@ use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use crate::mouse::Mouse;
-use crate::graphics::DrawColors;
+use crate::graphics::{DrawColors, draw_text};
 use crate::Map;
-use crate::wasm4::{seed, text};
+use crate::wasm4::seed;
 
 use super::{InGameState, State, Transition};
 
@@ -37,11 +37,11 @@ impl PreGameState {
         let remaining_mines = 50;
         let s = format!("Mines:{:02}", remaining_mines);
         DrawColors.set(0x03);
-        text(&s, 160 - 64, 2);
+        draw_text(s, 160 - 64, 2);
 
         // Draw elapsed time
         let s = format!("Time:{:3}", 0);
-        text(s, 2, 2);
+        draw_text(s, 2, 2);
     }
 
     pub fn update(self, mouse: &Mouse) -> Transition {

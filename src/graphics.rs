@@ -15,3 +15,24 @@ pub use sprite::Sprite;
 
 mod tile;
 pub use tile::Tile;
+
+use crate::wasm4::{hline, rect, text, vline};
+
+pub fn draw_rect(x: i32, y: i32, width: u32, height: u32) {
+    rect(x, y, width, height)
+}
+
+pub fn draw_horizontal_line(x: i32, y: i32, width: u32) {
+    hline(x, y, width)
+}
+
+pub fn draw_vertical_line(x: i32, y: i32, height: u32) {
+    vline(x, y, height)
+}
+
+pub fn draw_text<T>(s: T, x: i32, y: i32)
+where
+    T: AsRef<str>,
+{
+    text(s, x, y)
+}

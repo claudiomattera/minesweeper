@@ -1,7 +1,11 @@
+// Copyright Claudio Mattera 2021.
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::assets::FONT_SPRITE;
-use crate::graphics::DrawColors;
-use crate::wasm4::{hline, rect, vline};
+use crate::graphics::{DrawColors, draw_horizontal_line, draw_rect, draw_vertical_line};
 
 pub enum Character {
     Number(usize),
@@ -42,13 +46,13 @@ impl Tile {
 
     fn draw_tile_border(&self, x: i32, y: i32) {
         DrawColors.set(0x2);
-        vline(x, y, TILE_SIZE - 1);
-        hline(x, y, TILE_SIZE - 1);
+        draw_vertical_line(x, y, TILE_SIZE - 1);
+        draw_horizontal_line(x, y, TILE_SIZE - 1);
     }
 
     fn draw_tile_cover(&self, x: i32, y: i32) {
         DrawColors.set(0x3);
-        rect(
+        draw_rect(
             x + 1,
             y + 1,
             TILE_SIZE - 2,

@@ -4,15 +4,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::graphics::DrawColors;
+use crate::graphics::{DrawColors, draw_text};
 
 use crate::mouse::Mouse;
 
 use crate::Map;
 
 use crate::Timer;
-
-use crate::wasm4::text;
 
 use super::{GameOverState, GameWonState, PauseState, State, Transition};
 
@@ -43,11 +41,11 @@ impl InGameState {
         let remaining_mines = self.mines.len() - flagged_tiles;
         let s = format!("Mines:{:02}", remaining_mines);
         DrawColors.set(0x03);
-        text(&s, 160 - 64, 2);
+        draw_text(s, 160 - 64, 2);
 
         // Draw elapsed time
         let s = format!("Time:{:3}", self.timer.get());
-        text(s, 2, 2);
+        draw_text(s, 2, 2);
     }
 
     pub fn update(mut self, mouse: &Mouse) -> Transition {

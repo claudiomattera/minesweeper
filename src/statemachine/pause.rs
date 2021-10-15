@@ -5,8 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::mouse::Mouse;
-use crate::graphics::DrawColors;
-use crate::wasm4::{rect, text};
+use crate::graphics::{DrawColors, draw_rect, draw_text};
 
 use super::{State, Transition};
 
@@ -25,13 +24,13 @@ impl PauseState {
         let y = 30;
 
         DrawColors.set(0x44);
-        rect(x + 3, y + 3, 160 - 2 * x as u32, 30);
+        draw_rect(x + 3, y + 3, 160 - 2 * x as u32, 30);
         DrawColors.set(0x21);
-        rect(x, y, 160 - 32, 30);
+        draw_rect(x, y, 160 - 32, 30);
 
         DrawColors.set(0x03);
-        text("Game paused", 20, y + 5);
-        text("Click to resume", 20, y + 15);
+        draw_text("Game paused", 20, y + 5);
+        draw_text("Click to resume", 20, y + 15);
     }
 
     pub fn update(self, mouse: &Mouse) -> Transition {
