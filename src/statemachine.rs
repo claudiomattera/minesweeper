@@ -13,6 +13,12 @@ use crate::debug;
 mod initial;
 use initial::InitialState;
 
+mod gameover;
+use gameover::GameOverState;
+
+mod gamewon;
+use gamewon::GameWonState;
+
 mod pregame;
 use pregame::PreGameState;
 
@@ -89,6 +95,8 @@ pub enum State {
     Initial(InitialState),
     PreGame(PreGameState),
     InGame(InGameState),
+    GameOver(GameOverState),
+    GameWon(GameWonState),
 }
 
 impl State {
@@ -97,6 +105,8 @@ impl State {
             State::Initial(_) => "initial",
             State::PreGame(_) => "pre_game",
             State::InGame(_) => "in_game",
+            State::GameOver(_) => "game_over",
+            State::GameWon(_) => "game_won",
         }
     }
 
@@ -105,6 +115,8 @@ impl State {
             State::Initial(s) => s.draw(),
             State::PreGame(s) => s.draw(),
             State::InGame(s) => s.draw(),
+            State::GameOver(s) => s.draw(),
+            State::GameWon(s) => s.draw(),
         }
     }
 
@@ -113,6 +125,8 @@ impl State {
             State::Initial(state) => state.update(mouse),
             State::PreGame(state) => state.update(mouse),
             State::InGame(state) => state.update(mouse),
+            State::GameOver(state) => state.update(mouse),
+            State::GameWon(state) => state.update(mouse),
         }
     }
 }

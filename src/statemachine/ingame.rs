@@ -14,7 +14,7 @@ use crate::Timer;
 
 use crate::wasm4::text;
 
-use super::{State, Transition};
+use super::{GameOverState, GameWonState, State, Transition};
 
 #[derive(Clone)]
 pub struct InGameState {
@@ -48,20 +48,19 @@ impl InGameState {
         // Draw elapsed time
         let s = format!("Time:{:3}", self.timer.get());
         text(s, 2, 2);
-
-        // Draw game status
-        if map.has_stepped_on_mine(&self.mines) {
-            text("GAME OVER!!!", 2, 10);
-        }
-
-        if self.has_found_all_mines() {
-            text("GAME WON!!!", 2, 10);
-        }
     }
 
     pub fn update(mut self, _mouse: &Mouse) -> Transition {
         let has_found_all_mines = self.has_found_all_mines();
         let map = &mut self.map;
+
+        if map.has_stepped_on_mine(&self.mines) {
+            return Transition::Replace(State::GameOver(GameOverState::new(self.map, self.mines, self.timer)));
+        }
+
+        if has_found_all_mines {
+            return Transition::Replace(State::GameWon(GameWonState::new(self.map, self.mines, self.timer)));
+        }
 
         if !map.has_stepped_on_mine(&self.mines) && !has_found_all_mines {
             if Mouse.left_clicked() {
