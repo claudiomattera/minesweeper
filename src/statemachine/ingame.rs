@@ -55,10 +55,16 @@ impl InGameState {
         let map = &mut self.map;
 
         if map.has_stepped_on_mine(&self.mines) {
+            for (mx, my) in &self.mines {
+                map.flag_tile(*mx, *my);
+            }
             return Transition::Replace(State::GameOver(GameOverState::new(self.map, self.mines, self.timer)));
         }
 
         if has_found_all_mines {
+            for (mx, my) in &self.mines {
+                map.flag_tile(*mx, *my);
+            }
             return Transition::Replace(State::GameWon(GameWonState::new(self.map, self.mines, self.timer)));
         }
 

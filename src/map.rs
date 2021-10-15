@@ -63,7 +63,7 @@ impl Map {
             .count()
     }
 
-    fn flag_tile(&mut self, tx: usize, ty: usize) {
+    pub fn flag_tile(&mut self, tx: usize, ty: usize) {
         match self.tile(tx, ty) {
             Tile::Uncovered => {}
             Tile::Covered => self.flag_individual_tile(tx, ty),
