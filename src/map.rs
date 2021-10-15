@@ -94,9 +94,6 @@ impl Map {
         let mut tiles_to_uncover = vec![(initial_x, initial_y)];
 
         while let Some((x, y)) = tiles_to_uncover.pop() {
-            debug!("{} tiles to uncover", tiles_to_uncover.len());
-            debug!("Uncovering tile {}x{}", x, y);
-
             match self.tile(x, y) {
                 Tile::Uncovered => continue,
                 Tile::Covered => {
