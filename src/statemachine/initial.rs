@@ -23,7 +23,7 @@ impl InitialState {
 
     pub fn update(self, _mouse: &Mouse) -> Transition {
         Transition::Push(
-            State::Initial(self.clone()),
+            State::Initial(self),
             State::PreGame(PreGameState::new()),
         )
     }
