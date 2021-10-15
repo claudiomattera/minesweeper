@@ -5,6 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::graphics::{draw_rect, draw_text, DrawColors};
+use crate::highscores::get_high_scores;
 use crate::mouse::Mouse;
 
 use super::{PreGameState, State, Transition};
@@ -28,6 +29,15 @@ impl MainMenuState {
         self.draw_menu_entry(0, "Start an easy game");
         self.draw_menu_entry(1, "Start a medium game");
         self.draw_menu_entry(2, "Start a hard game");
+
+        let highscores = get_high_scores();
+        DrawColors.set(0x2);
+        draw_text("HIGH SCORES", 4, 70);
+        for (i, (difficulty, time)) in highscores.iter().enumerate() {
+            let text = format!("Mines:{}, time:{}s", difficulty, time);
+            DrawColors.set(0x3);
+            draw_text(text, 4, 82 + 10 * i as i32);
+        }
     }
 
     pub fn update(self, mouse: &Mouse) -> Transition {
