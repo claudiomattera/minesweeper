@@ -9,3 +9,6 @@ pub use drawcolors::DrawColors;
 
 mod sprite;
 pub use sprite::Sprite;
+
+mod tile;
+pub use tile::Tile;

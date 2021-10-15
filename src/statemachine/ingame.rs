@@ -18,28 +18,24 @@ use crate::wasm4::text;
 
 use super::{State, Transition};
 
-static mut TIMER: Lazy<Timer> = Lazy::new(Timer::new);
-
-static mut MAP: Lazy<Map<50>> = Lazy::new(|| {
-    let width = 16;
-    let height = 14;
-    Map::new(width, height, (0, 20))
-});
-
-
 #[derive(Clone)]
 pub struct InGameState {
+    map: Map<50>,
+    timer: Timer,
 }
 
 impl InGameState {
     pub fn new() -> Self {
+        let width = 16;
+        let height = 14;
         Self {
+            map: Map::new(width, height, (0, 20)),
+            timer: Timer::new(),
         }
     }
 
     pub fn draw(&self) {
-        let map = unsafe { &mut MAP };
-        let timer = unsafe { &mut TIMER };
+        let map = &self.map;
 
         // Draw map
         map.draw();
@@ -51,7 +47,7 @@ impl InGameState {
         text(&s, 160 - 64, 2);
 
         // Draw elapsed time
-        let s = format!("Time:{:3}", timer.get());
+        let s = format!("Time:{:3}", self.timer.get());
         text(s, 2, 2);
 
         // Draw game status
@@ -64,9 +60,8 @@ impl InGameState {
         }
     }
 
-    pub fn update(self, _mouse: &Mouse) -> Transition {
-        let map = unsafe { &mut MAP };
-        let timer = unsafe { &mut TIMER };
+    pub fn update(mut self, _mouse: &Mouse) -> Transition {
+        let map = &mut self.map;
 
         if !map.has_stepped_on_mine() && !map.has_found_all_mines() {
             if Mouse.left_clicked() {
@@ -80,7 +75,7 @@ impl InGameState {
         }
 
         if map.has_started() && !map.has_stepped_on_mine() && !map.has_found_all_mines() {
-            timer.update();
+            self.timer.update();
         }
 
         Transition::Replace(State::InGame(self))

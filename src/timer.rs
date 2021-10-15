@@ -6,6 +6,7 @@
 
 use crate::Ticker;
 
+#[derive(Clone)]
 pub struct Timer(u32);
 
 impl Timer {

@@ -13,7 +13,7 @@ use rand_xorshift::XorShiftRng;
 
 use crate::assets::FONT_SPRITE;
 use crate::debug;
-use crate::graphics::DrawColors;
+use crate::graphics::{DrawColors, Tile};
 use crate::wasm4::{hline, rect, vline};
 
 const TILE_SIZE: u32 = 10;
@@ -21,19 +21,13 @@ const MAX_WIDTH: usize = 16;
 const MAX_HEIGHT: usize = 16;
 const MAX_SIZE: usize = MAX_WIDTH * MAX_HEIGHT;
 
+#[derive(Clone)]
 pub struct Map<const MINES_COUNT: usize> {
     offset: (i32, i32),
     mines_positions: OnceCell<[(usize, usize); MINES_COUNT]>,
     tiles: Vec<Tile>,
     width: usize,
     height: usize,
-}
-
-#[derive(Clone, Copy)]
-enum Tile {
-    Covered,
-    Uncovered,
-    Flagged,
 }
 
 impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
@@ -188,33 +182,18 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
                 let x = tx as i32 * TILE_SIZE as i32;
                 let y = ty as i32 * TILE_SIZE as i32;
 
-                self.draw_tile_border(x, y);
-
-                match tile {
-                    Tile::Covered => {
-                        self.draw_tile_cover(x, y);
-                    }
-                    Tile::Uncovered => {
-                        if self
-                            .mines_positions
-                            .get()
-                            .expect("Mines positions not initialized")
+                let is_mine = self
+                    .mines_positions
+                    .get()
+                    .map(|mines_positions| {
+                        mines_positions
                             .iter()
                             .any(|(mx, my)| (*mx, *my) == (tx, ty))
-                        {
-                            self.draw_tile_character(x, y, Character::Mine);
-                        } else {
-                            let neighbour_mines = self.count_neighbour_mines(tx, ty);
-                            if neighbour_mines > 0 {
-                                self.draw_tile_character(x, y, Character::Number(neighbour_mines));
-                            }
-                        }
-                    }
-                    Tile::Flagged => {
-                        self.draw_tile_cover(x, y);
-                        self.draw_tile_character(x, y, Character::Flag);
-                    }
-                }
+                    })
+                    .unwrap_or(false);
+
+                let neighbour_mines = self.count_neighbour_mines(tx, ty);
+                tile.draw(self.offset.0 + x, self.offset.1 + y, is_mine, neighbour_mines);
             }
         }
     }
@@ -291,60 +270,4 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
             Some((x as usize, y as usize))
         }
     }
-
-    fn draw_tile_border(&self, x: i32, y: i32) {
-        DrawColors.set(0x2);
-        vline(self.offset.0 + x, self.offset.1 + y, TILE_SIZE - 1);
-        hline(self.offset.0 + x, self.offset.1 + y, TILE_SIZE - 1);
-    }
-
-    fn draw_tile_cover(&self, x: i32, y: i32) {
-        DrawColors.set(0x3);
-        rect(
-            self.offset.0 + x + 1,
-            self.offset.1 + y + 1,
-            TILE_SIZE - 2,
-            TILE_SIZE - 2,
-        );
-    }
-
-    fn draw_tile_character(&self, x: i32, y: i32, c: Character) {
-        let offset = ((TILE_SIZE - 8) / 2) as i32;
-        DrawColors.set(0x2240);
-        match c {
-            Character::Number(n) => FONT_SPRITE.blit_sub(
-                self.offset.0 + x + offset,
-                self.offset.1 + y + offset,
-                8,
-                8,
-                8 * n as u32,
-                0,
-            ),
-            Character::Mine => {
-                DrawColors.set(0x1142);
-                FONT_SPRITE.blit_sub(
-                    self.offset.0 + x + offset,
-                    self.offset.1 + y + offset,
-                    8,
-                    8,
-                    8 * 7,
-                    8 * 8,
-                );
-            }
-            Character::Flag => FONT_SPRITE.blit_sub(
-                self.offset.0 + x + offset,
-                self.offset.1 + y + offset,
-                8,
-                8,
-                8,
-                8,
-            ),
-        }
-    }
-}
-
-enum Character {
-    Number(usize),
-    Mine,
-    Flag,
 }
