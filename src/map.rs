@@ -11,7 +11,6 @@ use crate::graphics::Tile;
 const TILE_SIZE: u32 = 10;
 const MAX_WIDTH: usize = 16;
 const MAX_HEIGHT: usize = 16;
-const MAX_SIZE: usize = MAX_WIDTH * MAX_HEIGHT;
 
 #[derive(Clone)]
 pub struct Map {
