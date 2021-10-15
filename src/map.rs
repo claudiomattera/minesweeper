@@ -22,15 +22,14 @@ const MAX_HEIGHT: usize = 16;
 const MAX_SIZE: usize = MAX_WIDTH * MAX_HEIGHT;
 
 #[derive(Clone)]
-pub struct Map<const MINES_COUNT: usize> {
+pub struct Map {
     offset: (i32, i32),
-    mines_positions: OnceCell<[(usize, usize); MINES_COUNT]>,
     tiles: Vec<Tile>,
     width: usize,
     height: usize,
 }
 
-impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
+impl Map {
     pub fn new(width: usize, height: usize, offset: (i32, i32)) -> Self {
         debug_assert!(width <= MAX_WIDTH);
         debug_assert!(height <= MAX_HEIGHT);
@@ -38,58 +37,37 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         let tiles = vec![Tile::Covered; width * height];
         Self {
             offset,
-            mines_positions: OnceCell::new(),
             tiles,
             width,
             height,
         }
     }
 
-    pub fn mines_from_random_seed(
-        &self,
-        seed: u64,
-        forbidden_x: usize,
-        forbidden_y: usize,
-    ) -> [(usize, usize); MINES_COUNT] {
-        let mut mines_positions = [(0, 0); MINES_COUNT];
-        let mut generator = XorShiftRng::seed_from_u64(seed);
-        for i in 0..MINES_COUNT {
-            let mut x = generator.next_u32() as usize % self.width;
-            let mut y = generator.next_u32() as usize % self.height;
-            while mines_positions[0..i].iter().any(|pos| *pos == (x, y))
-                || x == forbidden_x && y == forbidden_y
-            {
-                x = generator.next_u32() as usize % self.width;
-                y = generator.next_u32() as usize % self.height;
-            }
-            mines_positions[i] = (x, y);
-        }
-        mines_positions
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
     }
 
     pub fn has_started(&self) -> bool {
-        self.mines_positions.get().is_some()
+        true
     }
 
-    pub fn has_stepped_on_mine(&self) -> bool {
-        self.mines_positions
-            .get()
-            .map(|mines_positions| {
-                mines_positions
-                    .iter()
-                    .map(|(x, y)| self.tile(*x, *y))
-                    .any(|tile| matches!(tile, Tile::Uncovered))
-            })
-            .unwrap_or(false)
+    pub fn has_stepped_on_mine(&self, mines: &[(usize, usize)]) -> bool {
+        mines
+            .iter()
+            .map(|(x, y)| self.tile(*x, *y))
+            .any(|tile| matches!(tile, Tile::Uncovered))
     }
 
-    pub fn has_found_all_mines(&self) -> bool {
-        let uncovered_tiles_count = self
+    pub fn count_uncovered_tiles(&self) -> usize {
+        self
             .tiles
             .iter()
             .filter(|tile| matches!(tile, Tile::Uncovered))
-            .count();
-        uncovered_tiles_count + MINES_COUNT == self.width * self.height
+            .count()
     }
 
     fn flag_tile(&mut self, tx: usize, ty: usize) {
@@ -100,9 +78,9 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         }
     }
 
-    pub fn handle_left_click(&mut self, mouse_x: i16, mouse_y: i16) {
+    pub fn handle_left_click(&mut self, mouse_x: i16, mouse_y: i16, mines: &[(usize, usize)]) {
         if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
-            self.uncover_tile(x, y)
+            self.uncover_tile(x, y, mines)
         }
     }
 
@@ -112,24 +90,14 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         }
     }
 
-    pub fn count_remaining_mines(&self) -> usize {
-        MINES_COUNT - self.count_flagged_mines()
-    }
-
-    fn count_flagged_mines(&self) -> usize {
+    pub fn count_flagged_tiles(&self) -> usize {
         self.tiles
             .iter()
             .filter(|tile| matches!(tile, Tile::Flagged))
             .count()
     }
 
-    fn uncover_tile(&mut self, initial_x: usize, initial_y: usize) {
-        let _ = self.mines_positions.get_or_init(|| {
-            let seed = 0;
-            debug!("Creating map with seed {}", seed);
-            self.mines_from_random_seed(seed, initial_x, initial_y)
-        });
-
+    fn uncover_tile(&mut self, initial_x: usize, initial_y: usize, mines: &[(usize, usize)]) {
         let mut tiles_to_uncover = vec![(initial_x, initial_y)];
 
         while let Some((x, y)) = tiles_to_uncover.pop() {
@@ -140,7 +108,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
                 Tile::Uncovered => continue,
                 Tile::Covered => {
                     self.uncover_individual_tile(x, y);
-                    let neighbour_mines = self.count_neighbour_mines(x, y);
+                    let neighbour_mines = self.count_neighbour_mines(mines, x, y);
                     let neighbour_flags = self.count_neighbour_flags(x, y);
                     if neighbour_mines == neighbour_flags {
                         let x = x as i32;
@@ -174,7 +142,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, mines: &[(usize, usize)]) {
         for tx in 0..self.width {
             for ty in 0..self.height {
                 let tile = self.tile(tx, ty);
@@ -182,36 +150,25 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
                 let x = tx as i32 * TILE_SIZE as i32;
                 let y = ty as i32 * TILE_SIZE as i32;
 
-                let is_mine = self
-                    .mines_positions
-                    .get()
-                    .map(|mines_positions| {
-                        mines_positions
-                            .iter()
-                            .any(|(mx, my)| (*mx, *my) == (tx, ty))
-                    })
-                    .unwrap_or(false);
+                let is_mine = mines
+                    .iter()
+                    .any(|(mx, my)| (*mx, *my) == (tx, ty));
 
-                let neighbour_mines = self.count_neighbour_mines(tx, ty);
+                let neighbour_mines = self.count_neighbour_mines(mines, tx, ty);
                 tile.draw(self.offset.0 + x, self.offset.1 + y, is_mine, neighbour_mines);
             }
         }
     }
 
-    fn count_neighbour_mines(&self, x: usize, y: usize) -> usize {
-        self.mines_positions
-            .get()
-            .map(|mines_positions| {
-                mines_positions
-                    .iter()
-                    .filter(|(mx, my)| {
-                        let horizontally_adjacent = (*mx as i32 - x as i32).abs() <= 1;
-                        let vertically_adjacent = (*my as i32 - y as i32).abs() <= 1;
-                        horizontally_adjacent && vertically_adjacent
-                    })
-                    .count()
+    fn count_neighbour_mines(&self, mines: &[(usize, usize)], x: usize, y: usize) -> usize {
+        mines
+            .iter()
+            .filter(|(mx, my)| {
+                let horizontally_adjacent = (*mx as i32 - x as i32).abs() <= 1;
+                let vertically_adjacent = (*my as i32 - y as i32).abs() <= 1;
+                horizontally_adjacent && vertically_adjacent
             })
-            .unwrap_or(0)
+            .count()
     }
 
     fn count_neighbour_flags(&self, x: usize, y: usize) -> usize {
