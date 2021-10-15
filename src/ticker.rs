@@ -12,7 +12,7 @@
 /// This object can be used to find out what is the current frame number.
 pub struct Ticker;
 
-pub static mut TICKER_COUNTER: u8 = 0;
+static mut TICKER_COUNTER: u8 = 0;
 
 impl Ticker {
     /// Update the ticker
