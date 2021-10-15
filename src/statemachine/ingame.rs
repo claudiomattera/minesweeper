@@ -50,7 +50,7 @@ impl InGameState {
         text(s, 2, 2);
     }
 
-    pub fn update(mut self, _mouse: &Mouse) -> Transition {
+    pub fn update(mut self, mouse: &Mouse) -> Transition {
         let has_found_all_mines = self.has_found_all_mines();
         let map = &mut self.map;
 
@@ -68,15 +68,14 @@ impl InGameState {
             return Transition::Replace(State::GameWon(GameWonState::new(self.map, self.mines, self.timer)));
         }
 
-        if !map.has_stepped_on_mine(&self.mines) && !has_found_all_mines {
-            if Mouse.left_clicked() {
-                let (x, y) = Mouse.coordinates();
-                map.handle_left_click(x, y, &self.mines);
-            }
-            if Mouse.right_clicked() {
-                let (x, y) = Mouse.coordinates();
-                map.handle_right_click(x, y);
-            }
+        if mouse.left_clicked() {
+            let (x, y) = mouse.coordinates();
+            map.handle_left_click(x, y, &self.mines);
+        }
+
+        if mouse.right_clicked() {
+            let (x, y) = mouse.coordinates();
+            map.handle_right_click(x, y);
         }
 
         if map.has_started() && !map.has_stepped_on_mine(&self.mines) && !has_found_all_mines {
