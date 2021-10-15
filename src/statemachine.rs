@@ -8,6 +8,8 @@
 
 use once_cell::unsync::Lazy;
 
+use crate::graphics::DrawColors;
+
 use crate::mouse::Mouse;
 
 use crate::debug;
@@ -51,7 +53,9 @@ impl Machine {
     /// Draw all states in the stack
     pub fn draw(&self) {
         for state in &self.states_stack {
+            let original_colors = DrawColors.get();
             state.draw();
+            DrawColors.set(original_colors);
         }
     }
 
