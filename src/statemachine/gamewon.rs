@@ -5,6 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::graphics::{draw_text, DrawColors};
+use crate::interface::draw_message_box;
 use crate::mouse::Mouse;
 use crate::Map;
 use crate::Timer;
@@ -37,8 +38,8 @@ impl GameWonState {
         let s = format!("Time:{:3}", self.timer.get());
         draw_text(s, 2, 2);
 
-        // Drat game state
-        draw_text("GAME WON!!!", 2, 10);
+        // Draw game state
+        draw_message_box("VICTORY!!!", 30, 30);
     }
 
     pub fn update(self, mouse: &Mouse) -> Transition {
