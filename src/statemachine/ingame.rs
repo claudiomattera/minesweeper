@@ -16,8 +16,6 @@ use crate::wasm4::text;
 
 use super::{State, Transition};
 
-const MINES_COUNT: usize = 5;
-
 #[derive(Clone)]
 pub struct InGameState {
     map: Map,
@@ -42,7 +40,7 @@ impl InGameState {
 
         // Draw remaining mines count
         let flagged_tiles = map.count_flagged_tiles();
-        let remaining_mines = MINES_COUNT - flagged_tiles;
+        let remaining_mines = self.mines.len() - flagged_tiles;
         let s = format!("Mines:{:02}", remaining_mines);
         DrawColors.set(0x03);
         text(&s, 160 - 64, 2);
@@ -84,6 +82,6 @@ impl InGameState {
     }
 
     fn has_found_all_mines(&self) -> bool {
-        self.map.count_uncovered_tiles() + MINES_COUNT == self.map.width() * self.map.height()
+        self.map.count_uncovered_tiles() + self.mines.len() == self.map.width() * self.map.height()
     }
 }
