@@ -22,6 +22,7 @@ pub struct PreGameState {
 }
 
 impl PreGameState {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         let width = 16;
         let height = 14;

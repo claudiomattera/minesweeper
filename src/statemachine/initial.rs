@@ -12,6 +12,7 @@ use super::{PreGameState, State, Transition};
 pub struct InitialState {}
 
 impl InitialState {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {}
     }

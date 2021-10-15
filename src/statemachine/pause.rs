@@ -13,6 +13,7 @@ use super::{State, Transition};
 pub struct PauseState {}
 
 impl PauseState {
+    #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {}
     }
