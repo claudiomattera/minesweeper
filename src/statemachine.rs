@@ -28,10 +28,8 @@ use pregame::PreGameState;
 mod ingame;
 use ingame::InGameState;
 
-pub static mut STATE_MACHINE: Lazy<Machine> = Lazy::new(|| {
-    Machine {
-        states_stack: vec![State::Initial(InitialState::new())],
-    }
+pub static mut STATE_MACHINE: Lazy<Machine> = Lazy::new(|| Machine {
+    states_stack: vec![State::Initial(InitialState::new())],
 });
 
 /// Main stackable state machine
@@ -55,9 +53,7 @@ impl Machine {
     }
 
     pub fn update(&mut self, mouse: &Mouse) {
-        let state: State = self.states_stack
-            .pop()
-            .expect("Empty state machine!!!");
+        let state: State = self.states_stack.pop().expect("Empty state machine!!!");
         let transition: Transition = state.update(mouse);
 
         match transition {

@@ -7,10 +7,10 @@
 use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
+use crate::graphics::{draw_text, DrawColors};
 use crate::mouse::Mouse;
-use crate::graphics::{DrawColors, draw_text};
-use crate::Map;
 use crate::wasm4::get_random_seed;
+use crate::Map;
 
 use super::{InGameState, State, Transition};
 
@@ -51,17 +51,14 @@ impl PreGameState {
                 let mut map = self.map;
 
                 let seed = get_random_seed();
-                let mines = Self::place_mines_from_random_seed(seed, map.width(), map.height(), tx, ty);
+                let mines =
+                    Self::place_mines_from_random_seed(seed, map.width(), map.height(), tx, ty);
                 map.uncover_tile(tx, ty, &mines);
-                return Transition::Replace(
-                    State::InGame(InGameState::new(map, mines)),
-                )
+                return Transition::Replace(State::InGame(InGameState::new(map, mines)));
             }
         }
 
-        Transition::Replace(
-            State::PreGame(self),
-        )
+        Transition::Replace(State::PreGame(self))
     }
 
     fn place_mines_from_random_seed(

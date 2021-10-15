@@ -55,8 +55,7 @@ impl Map {
     }
 
     pub fn count_uncovered_tiles(&self) -> usize {
-        self
-            .tiles
+        self.tiles
             .iter()
             .filter(|tile| matches!(tile, Tile::Uncovered))
             .count()
@@ -139,12 +138,15 @@ impl Map {
                 let x = tx as i32 * TILE_SIZE as i32;
                 let y = ty as i32 * TILE_SIZE as i32;
 
-                let is_mine = mines
-                    .iter()
-                    .any(|(mx, my)| (*mx, *my) == (tx, ty));
+                let is_mine = mines.iter().any(|(mx, my)| (*mx, *my) == (tx, ty));
 
                 let neighbour_mines = self.count_neighbour_mines(mines, tx, ty);
-                tile.draw(self.offset.0 + x, self.offset.1 + y, is_mine, neighbour_mines);
+                tile.draw(
+                    self.offset.0 + x,
+                    self.offset.1 + y,
+                    is_mine,
+                    neighbour_mines,
+                );
             }
         }
     }

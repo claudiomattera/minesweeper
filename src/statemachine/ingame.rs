@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::graphics::{DrawColors, draw_text};
+use crate::graphics::{draw_text, DrawColors};
 
 use crate::mouse::Mouse;
 
@@ -56,23 +56,24 @@ impl InGameState {
             for (mx, my) in &self.mines {
                 map.flag_tile(*mx, *my);
             }
-            return Transition::Replace(State::GameOver(GameOverState::new(self.map, self.mines, self.timer)));
+            return Transition::Replace(State::GameOver(GameOverState::new(
+                self.map, self.mines, self.timer,
+            )));
         }
 
         if has_found_all_mines {
             for (mx, my) in &self.mines {
                 map.flag_tile(*mx, *my);
             }
-            return Transition::Replace(State::GameWon(GameWonState::new(self.map, self.mines, self.timer)));
+            return Transition::Replace(State::GameWon(GameWonState::new(
+                self.map, self.mines, self.timer,
+            )));
         }
 
         if mouse.left_clicked() {
             let (x, y) = mouse.coordinates();
             if map.mouse_to_tile(x, y).is_none() {
-                return Transition::Push(
-                    State::InGame(self),
-                    State::Pause(PauseState::new()),
-                );
+                return Transition::Push(State::InGame(self), State::Pause(PauseState::new()));
             }
             map.handle_left_click(x, y, &self.mines);
         }

@@ -4,8 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::graphics::{draw_text, DrawColors};
 use crate::mouse::Mouse;
-use crate::graphics::{DrawColors, draw_text};
 use crate::Map;
 use crate::Timer;
 
@@ -43,13 +43,9 @@ impl GameWonState {
 
     pub fn update(self, mouse: &Mouse) -> Transition {
         if mouse.left_clicked() {
-            return Transition::Replace(
-                State::PreGame(PreGameState::new()),
-            )
+            return Transition::Replace(State::PreGame(PreGameState::new()));
         }
 
-        Transition::Replace(
-            State::GameWon(self),
-        )
+        Transition::Replace(State::GameWon(self))
     }
 }

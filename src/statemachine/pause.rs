@@ -4,19 +4,17 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::graphics::{draw_rect, draw_text, DrawColors};
 use crate::mouse::Mouse;
-use crate::graphics::{DrawColors, draw_rect, draw_text};
 
 use super::{State, Transition};
 
 #[derive(Clone)]
-pub struct PauseState {
-}
+pub struct PauseState {}
 
 impl PauseState {
     pub fn new() -> Self {
-        Self {
-        }
+        Self {}
     }
 
     pub fn draw(&self) {
