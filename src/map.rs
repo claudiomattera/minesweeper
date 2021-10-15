@@ -6,7 +6,6 @@
 
 use core::iter::Iterator;
 
-use crate::debug;
 use crate::graphics::Tile;
 
 const TILE_SIZE: u32 = 10;

@@ -11,7 +11,6 @@ use crate::mouse::Mouse;
 use crate::graphics::DrawColors;
 use crate::Map;
 use crate::wasm4::{seed, text};
-use crate::debug;
 
 use super::{InGameState, State, Transition};
 
