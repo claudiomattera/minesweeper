@@ -4,9 +4,6 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use rand_core::{RngCore, SeedableRng};
-use rand_xorshift::XorShiftRng;
-
 use crate::graphics::DrawColors;
 
 use crate::mouse::Mouse;
@@ -29,13 +26,11 @@ pub struct InGameState {
 }
 
 impl InGameState {
-    pub fn new() -> Self {
-        let width = 16;
-        let height = 14;
+    pub fn new(map: Map, mines: Vec<(usize, usize)>) -> Self {
         Self {
-            map: Map::new(width, height, (0, 20)),
+            map,
+            mines,
             timer: Timer::new(),
-            mines: Self::place_mines_from_random_seed(0, width, height, 0, 0),
         }
     }
 
@@ -90,28 +85,5 @@ impl InGameState {
 
     fn has_found_all_mines(&self) -> bool {
         self.map.count_uncovered_tiles() + MINES_COUNT == self.map.width() * self.map.height()
-    }
-
-    fn place_mines_from_random_seed(
-        seed: u64,
-        width: usize,
-        height: usize,
-        forbidden_x: usize,
-        forbidden_y: usize,
-    ) -> Vec<(usize, usize)> {
-        let mut mines = Vec::new();
-        let mut generator = XorShiftRng::seed_from_u64(seed);
-        for i in 0..MINES_COUNT {
-            let mut x = generator.next_u32() as usize % width;
-            let mut y = generator.next_u32() as usize % height;
-            while mines[0..i].iter().any(|pos| *pos == (x, y))
-                || x == forbidden_x && y == forbidden_y
-            {
-                x = generator.next_u32() as usize % width;
-                y = generator.next_u32() as usize % height;
-            }
-            mines.push((x, y));
-        }
-        mines
     }
 }

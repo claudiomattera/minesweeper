@@ -97,7 +97,7 @@ impl Map {
             .count()
     }
 
-    fn uncover_tile(&mut self, initial_x: usize, initial_y: usize, mines: &[(usize, usize)]) {
+    pub fn uncover_tile(&mut self, initial_x: usize, initial_y: usize, mines: &[(usize, usize)]) {
         let mut tiles_to_uncover = vec![(initial_x, initial_y)];
 
         while let Some((x, y)) = tiles_to_uncover.pop() {
@@ -213,7 +213,7 @@ impl Map {
         self.tiles[x + y * self.width] = Tile::Covered;
     }
 
-    fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
+    pub fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
         let mouse_x = mouse_x - self.offset.0 as i16;
         let mouse_y = mouse_y - self.offset.1 as i16;
         if mouse_x < 0
