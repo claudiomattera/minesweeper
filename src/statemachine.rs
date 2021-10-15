@@ -19,6 +19,9 @@ use gameover::GameOverState;
 mod gamewon;
 use gamewon::GameWonState;
 
+mod pause;
+use pause::PauseState;
+
 mod pregame;
 use pregame::PreGameState;
 
@@ -97,6 +100,7 @@ pub enum State {
     InGame(InGameState),
     GameOver(GameOverState),
     GameWon(GameWonState),
+    Pause(PauseState),
 }
 
 impl State {
@@ -107,6 +111,7 @@ impl State {
             State::InGame(_) => "in_game",
             State::GameOver(_) => "game_over",
             State::GameWon(_) => "game_won",
+            State::Pause(_) => "pause",
         }
     }
 
@@ -117,6 +122,7 @@ impl State {
             State::InGame(s) => s.draw(),
             State::GameOver(s) => s.draw(),
             State::GameWon(s) => s.draw(),
+            State::Pause(s) => s.draw(),
         }
     }
 
@@ -127,6 +133,7 @@ impl State {
             State::InGame(state) => state.update(mouse),
             State::GameOver(state) => state.update(mouse),
             State::GameWon(state) => state.update(mouse),
+            State::Pause(state) => state.update(mouse),
         }
     }
 }

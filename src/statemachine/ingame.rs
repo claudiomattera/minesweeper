@@ -14,7 +14,7 @@ use crate::Timer;
 
 use crate::wasm4::text;
 
-use super::{GameOverState, GameWonState, State, Transition};
+use super::{GameOverState, GameWonState, PauseState, State, Transition};
 
 #[derive(Clone)]
 pub struct InGameState {
@@ -70,6 +70,12 @@ impl InGameState {
 
         if mouse.left_clicked() {
             let (x, y) = mouse.coordinates();
+            if map.mouse_to_tile(x, y).is_none() {
+                return Transition::Push(
+                    State::InGame(self),
+                    State::Pause(PauseState::new()),
+                );
+            }
             map.handle_left_click(x, y, &self.mines);
         }
 
