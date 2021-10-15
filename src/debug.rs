@@ -4,12 +4,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+//! Debug macros
+
 /// Format and write text to the WASM-4 debug console
 ///
 /// # Panics
 ///
-/// Panic if the resulting string is larger than
-/// [`STRING_BUFFER_PTR`](crate::memory::STRING_BUFFER_PTR), or if the
+/// Panic if the resulting string is larger than 256 bytes, or if the
 /// resulting string is not valid UTF-8.
 ///
 /// # Examples
@@ -38,6 +39,9 @@ macro_rules! debug {
     };
 }
 
+/// Pretend to format and write text to the WASM-4 debug console
+///
+/// This is the definition of `debug!` macro in case debugging is disabled.
 #[cfg(not(feature = "debug"))]
 #[macro_export]
 macro_rules! debug {

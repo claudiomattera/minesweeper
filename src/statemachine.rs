@@ -4,6 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+//! State machine data types and functions
+
 use once_cell::unsync::Lazy;
 
 use crate::mouse::Mouse;
@@ -46,12 +48,14 @@ pub struct Machine {
 }
 
 impl Machine {
+    /// Draw all states in the stack
     pub fn draw(&self) {
         for state in &self.states_stack {
             state.draw();
         }
     }
 
+    /// Update all states in the stack
     pub fn update(&mut self, mouse: &Mouse) {
         let state: State = self.states_stack.pop().expect("Empty state machine!!!");
         let transition: Transition = state.update(mouse);
@@ -83,23 +87,45 @@ impl Machine {
     }
 }
 
+/// A state transition
 pub enum Transition {
+    /// The current state is replaced with a new state
     Replace(State),
+
+    /// A new state is pushed on top of the current state
     Push(State, State),
+
+    /// The current state is popped from the stack
     Pop,
 }
 
+/// A game state
+///
+/// Each state maintains its own state data, which is also responsible for
+/// drawing and updating itself.
 #[derive(Clone)]
 pub enum State {
+    /// The initial state, created at the state machine initialization
     Initial(InitialState),
+
+    /// The state before the game started
     PreGame(PreGameState),
+
+    /// The state of a running game
     InGame(InGameState),
+
+    /// The state of a lost game
     GameOver(GameOverState),
+
+    /// The state of a won game
     GameWon(GameWonState),
+
+    /// The state of paused game
     Pause(PauseState),
 }
 
 impl State {
+    /// Return the name of the state
     pub fn name(&self) -> &'static str {
         match self {
             State::Initial(_) => "initial",
@@ -111,6 +137,9 @@ impl State {
         }
     }
 
+    /// Draw the current state
+    ///
+    /// This function delegates the drawing to the state data.
     pub fn draw(&self) {
         match self {
             State::Initial(s) => s.draw(),
@@ -122,6 +151,9 @@ impl State {
         }
     }
 
+    /// Update the current state
+    ///
+    /// This function delegates the update to the state data.
     pub fn update(self, mouse: &Mouse) -> Transition {
         match self {
             State::Initial(state) => state.update(mouse),

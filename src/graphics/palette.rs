@@ -14,9 +14,8 @@ use crate::wasm4::PALETTE;
 /// most 4 different colours on the screen.
 ///
 /// This enum defines several 4-colour palettes.
+// Generate colour placeholders at https://placeholderimage.dev/
 pub enum Palette {
-    // Generate colour placeholders at https://placeholderimage.dev/
-
     /// Default palette of WASM-4
     ///
     /// 1. `#def7cd` <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAPCAYAAACm25zCAAACMUlEQVRIiW2WQRbEIAhDe/+z6RX0FrB0FhX4obOY12mLCEmIfbaPs22e5eMsG2f7PNvHe3/fbZvybvs8y+dZNt//Ns6yex//fdzYuy6fRUzEve/enOPmHLknc61P3Mwan+UMjGYGgkYV1RrdjG/FLTQfMbXmNoNCdq6Z2LOalzW5Vhq5BXgr4lM8UOXVCvFsxtFErHVs3gu1yFl5hH0D0NkUAbqMRKL3Wogp+hUXyId0spjOTBYHkELCVsBkbOaY2pxIqwBYt4mXERtS4Eayon1kwmVgMJ8FY1VEzcPUZ7nHzL36bEoeU0YUzJLds0CfyABDV00BjdY8WRO5RFEhTYM0vKSSzLkOdFdHAtuaeZRyHXwZOlP0uaE0m2xqYZsSExkR6T8AQk5f96s8zwa6SncVs9FkPueAi7wKqZUbt1/IDVKrWeruRvOpejLvXf/US87CBHUTSE0gSompDfcC9cwAE5T1H1mq8cBYGJPDTpeg/1uhSU3SBmsOICPxe6COWRAZp8vRCPSwXACZts+anlzoihA7pv8r5W1Yxfu/Q1tnDpkYxay34rt0yUIzJbVfDGgVrp8s8ulhmix1zINQpIdC6WByFpVlc+60LhrCnZHuNOLZOHB4xnSrXSiYaFezzUjkMwP58v6fXNkEDsob84hFgpmiE6eoKUsbMZyDfpBtMkv2uyt2+bV5SykiLvKk/fZNk1aZnf8WK1/Oxk2nAKDfdHpm1MBrw3raEzw4pM/zA4GCoLscbOvAAAAAAElFTkSuQmCC">

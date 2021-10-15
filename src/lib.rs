@@ -4,32 +4,34 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+//! A game engine library based on WASM-4
+
 #[cfg(feature = "buddy-alloc")]
 mod alloc;
 
-mod assets;
+pub mod assets;
 
-mod debug;
+pub mod debug;
 
-mod graphics;
+pub mod graphics;
 use graphics::{DrawColors, Palette};
 
-mod map;
+pub mod map;
 use map::Map;
 
-mod mouse;
+pub mod mouse;
 use mouse::Mouse;
 
-mod ticker;
+pub mod ticker;
 use ticker::Ticker;
 
-mod statemachine;
+pub mod statemachine;
 use statemachine::STATE_MACHINE;
 
-mod timer;
+pub mod timer;
 use timer::Timer;
 
-mod wasm4;
+pub mod wasm4;
 use wasm4::*;
 
 #[no_mangle]

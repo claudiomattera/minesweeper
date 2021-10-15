@@ -8,10 +8,12 @@
 
 use crate::wasm4::DRAW_COLORS;
 
+/// Object for accessing and modifying drawing colours
 #[derive(Clone, Copy)]
 pub struct DrawColors;
 
 impl DrawColors {
+    /// Set colour for a specific palette index
     pub fn set_one(&mut self, index: usize, value: u8) -> &mut Self {
         let drawcolorsimpl = unsafe { &mut *(DRAW_COLORS as *mut DrawColorsImpl) };
         if value < 5 {
@@ -26,11 +28,13 @@ impl DrawColors {
         self
     }
 
+    /// Set all colours
     pub fn set(&mut self, value: u16) {
         let drawcolorsimpl = unsafe { &mut *(DRAW_COLORS as *mut DrawColorsImpl) };
         drawcolorsimpl.0 = value;
     }
 
+    /// Set all colours
     pub fn get(&self) -> u16 {
         let drawcolorsimpl = unsafe { &mut *(DRAW_COLORS as *mut DrawColorsImpl) };
         drawcolorsimpl.0
