@@ -20,6 +20,7 @@ publish = false
 # use `--no-default-features` or comment out next line to disable allocator
 default = ["buddy-alloc", "debug"]
 debug = ["bare-io"]
+sound = []
 
 [lib]
 crate-type = ["cdylib"]

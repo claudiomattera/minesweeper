@@ -25,6 +25,8 @@ use mouse::Mouse;
 pub mod ticker;
 use ticker::Ticker;
 
+pub mod sound;
+
 pub mod statemachine;
 use statemachine::STATE_MACHINE;
 

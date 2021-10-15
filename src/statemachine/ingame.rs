@@ -8,6 +8,8 @@ use crate::graphics::{draw_text, DrawColors};
 
 use crate::mouse::Mouse;
 
+use crate::sound::play_game_over_sound;
+
 use crate::Map;
 
 use crate::Timer;
@@ -56,6 +58,9 @@ impl InGameState {
             for (mx, my) in &self.mines {
                 map.flag_tile(*mx, *my);
             }
+
+            play_game_over_sound();
+
             return Transition::Replace(State::GameOver(GameOverState::new(
                 self.map, self.mines, self.timer,
             )));
