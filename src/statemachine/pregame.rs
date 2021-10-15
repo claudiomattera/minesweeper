@@ -10,7 +10,7 @@ use rand_xorshift::XorShiftRng;
 use crate::mouse::Mouse;
 use crate::graphics::{DrawColors, draw_text};
 use crate::Map;
-use crate::wasm4::seed;
+use crate::wasm4::get_random_seed;
 
 use super::{InGameState, State, Transition};
 
@@ -50,7 +50,7 @@ impl PreGameState {
             if let Some((tx, ty)) = self.map.mouse_to_tile(mouse_x, mouse_y) {
                 let mut map = self.map;
 
-                let seed = seed();
+                let seed = get_random_seed();
                 let mines = Self::place_mines_from_random_seed(seed, map.width(), map.height(), tx, ty);
                 map.uncover_tile(tx, ty, &mines);
                 return Transition::Replace(

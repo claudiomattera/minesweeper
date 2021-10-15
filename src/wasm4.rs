@@ -214,7 +214,7 @@ extern "C" {
 }
 
 /// Gets a random seed
-pub fn seed() -> u32 {
+pub fn get_random_seed() -> u32 {
     unsafe { extern_seed() }
 }
 extern "C" {
