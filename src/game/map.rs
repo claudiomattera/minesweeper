@@ -75,10 +75,19 @@ impl Map {
     }
 
     /// Flag a tile
+    pub fn flag_tile(&mut self, tx: usize, ty: usize) {
+        match self.tile(tx, ty) {
+            Tile::Uncovered => {}
+            Tile::Covered => self.flag_individual_tile(tx, ty),
+            Tile::Flagged => {},
+        }
+    }
+
+    /// Flip a tile
     ///
     /// This function flip the flagged status, from flagged to covered and
     /// viceversa
-    pub fn flag_tile(&mut self, tx: usize, ty: usize) {
+    pub fn flip_flagged_tile(&mut self, tx: usize, ty: usize) {
         match self.tile(tx, ty) {
             Tile::Uncovered => {}
             Tile::Covered => self.flag_individual_tile(tx, ty),
@@ -96,7 +105,7 @@ impl Map {
     /// Handle mouse right clicks on the map
     pub fn handle_right_click(&mut self, mouse_x: i16, mouse_y: i16) {
         if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
-            self.flag_tile(x, y)
+            self.flip_flagged_tile(x, y)
         }
     }
 
