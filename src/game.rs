@@ -10,7 +10,7 @@ mod difficulty;
 pub use difficulty::Difficulty;
 
 mod highscores;
-pub use highscores::{get_high_scores, save_high_score};
+pub use highscores::HighScores;
 
 mod map;
 pub use map::Map;

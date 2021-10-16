@@ -7,7 +7,7 @@
 //! Difficulty structures and functions
 
 /// Represent the game difficulty
-#[derive(Clone)]
+#[derive(Clone, Copy)]
 pub enum Difficulty {
     /// An easy game with 10 mines
     Easy,

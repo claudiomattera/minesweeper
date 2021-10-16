@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::game::{get_high_scores, Difficulty};
+use crate::game::{Difficulty, HighScores};
 use crate::graphics::{draw_rect, draw_text, DrawColors};
 use crate::mouse::Mouse;
 
@@ -12,7 +12,7 @@ use super::{PreGameState, State, Transition};
 
 #[derive(Clone)]
 pub struct MainMenuState {
-    highscores: [Option<u16>; 3],
+    highscores: HighScores,
 }
 
 const WIDTH: u32 = 160 - 6;
@@ -22,7 +22,7 @@ impl MainMenuState {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
         Self {
-            highscores: get_high_scores(),
+            highscores: HighScores::load(),
         }
     }
 
@@ -36,13 +36,10 @@ impl MainMenuState {
 
         DrawColors.set(0x2);
         draw_text("HIGH SCORES", 4, 70);
-        for (i, (time, difficulty)) in self
-            .highscores
-            .iter()
-            .zip([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard])
-            .enumerate()
+        for (i, difficulty) in ([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard]).iter().enumerate()
         {
-            let text = time
+            let text = self.highscores
+                .get(*difficulty)
                 .map(|time| format!("{}: time:{}s", difficulty.as_ref(), time))
                 .unwrap_or_else(|| format!("{}: Unplayed", difficulty.as_ref()));
             DrawColors.set(0x3);
