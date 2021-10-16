@@ -1,30 +1,89 @@
+// Copyright Claudio Mattera 2021.
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+use once_cell::unsync::Lazy;
+
 #[cfg(feature = "buddy-alloc")]
 mod alloc;
+
+mod assets;
+
+mod debug;
+
+mod graphics;
+use graphics::DrawColors;
+
+mod map;
+use map::Map;
+
+mod mouse;
+use mouse::Mouse;
+
+mod ticker;
+use ticker::Ticker;
+
+mod timer;
+use timer::Timer;
+
 mod wasm4;
 use wasm4::*;
 
-#[rustfmt::skip]
-const SMILEY: [u8; 8] = [
-    0b11000011,
-    0b10000001,
-    0b00100100,
-    0b00100100,
-    0b00000000,
-    0b00100100,
-    0b10011001,
-    0b11000011,
-];
+static mut MAP: Lazy<Map<50>> = Lazy::new(|| {
+    let width = 16;
+    let height = 14;
+    Map::new(width, height, (0, 20))
+});
+
+static mut TIMER: Lazy<Timer> = Lazy::new(Timer::new);
+
+#[no_mangle]
+fn start() {}
 
 #[no_mangle]
 fn update() {
-    unsafe { *DRAW_COLORS = 2 }
-    text("Hello from Rust!", 10, 10);
+    let map = unsafe { &mut MAP };
+    let timer = unsafe { &mut TIMER };
 
-    let gamepad = unsafe { *GAMEPAD1 };
-    if gamepad & BUTTON_1 != 0 {
-        unsafe { *DRAW_COLORS = 4 }
+    map.draw();
+
+    if !map.has_stepped_on_mine() && !map.has_found_all_mines() {
+        if Mouse.left_clicked() {
+            let (x, y) = Mouse.coordinates();
+            map.handle_left_click(x, y);
+        }
+        if Mouse.right_clicked() {
+            let (x, y) = Mouse.coordinates();
+            map.handle_right_click(x, y);
+        }
     }
 
-    blit(&SMILEY, 76, 76, 8, 8, BLIT_1BPP);
-    text("Press X to blink", 16, 90);
+    let remaining_mines = map.count_remaining_mines();
+    let s = format!("Mines:{:02}", remaining_mines);
+    DrawColors.set(0x03);
+    text(&s, 160 - 64, 2);
+
+    if map.has_stepped_on_mine() {
+        text("GAME OVER!!!", 2, 10);
+    }
+
+    if map.has_found_all_mines() {
+        text("GAME WON!!!", 2, 10);
+    }
+
+    if map.has_started() && !map.has_stepped_on_mine() && !map.has_found_all_mines() {
+        timer.update();
+    }
+
+    let s = format!("Time:{:3}", timer.get());
+    text(s, 2, 2);
+
+    let pos = Mouse.coordinates();
+    DrawColors.set(4);
+    vline(pos.0 as i32, pos.1 as i32 - 1, 3);
+    hline(pos.0 as i32 - 1, pos.1 as i32, 3);
+    Mouse.update();
+    Ticker.update();
 }

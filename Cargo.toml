@@ -1,6 +1,6 @@
 [package]
 name = "minesweeper"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Claudio Mattera <dev@claudiomattera.it>"]
 edition = "2018"
 description = "A minesweeper game using W4 engine"
@@ -18,13 +18,21 @@ publish = false
 
 [features]
 # use `--no-default-features` or comment out next line to disable allocator
-default = ["buddy-alloc"]
+default = ["buddy-alloc", "debug"]
+debug = ["bare-io"]
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
 buddy-alloc = { version = "0.4.1", optional = true }
+bare-io = { version = "0.2", default-features = false, optional = true }
+rand_core = { version = "0.6" }
+rand_xorshift = { version = "0.3" }
+once_cell = { version = "1.8" }
+
+[build-dependencies]
+png2wasm4src = { version = "0.1.0", git = "https://git.claudiomattera.it/claudiomattera/png2wasm4src/"}
 
 [profile.release]
 opt-level = "z"
