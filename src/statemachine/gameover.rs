@@ -7,10 +7,10 @@
 use crate::graphics::{draw_text, DrawColors};
 use crate::interface::draw_message_box;
 use crate::mouse::Mouse;
-use crate::Map;
+use crate::game::Map;
 use crate::Timer;
 
-use super::{PreGameState, State, Transition};
+use super::{MainMenuState, State, Transition};
 
 #[derive(Clone)]
 pub struct GameOverState {
@@ -44,7 +44,7 @@ impl GameOverState {
 
     pub fn update(self, mouse: &Mouse) -> Transition {
         if mouse.left_clicked() {
-            return Transition::Replace(State::PreGame(PreGameState::new()));
+            return Transition::Replace(State::MainMenu(MainMenuState::new()));
         }
 
         Transition::Replace(State::GameOver(self))

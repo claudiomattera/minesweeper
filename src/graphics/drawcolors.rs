@@ -67,8 +67,6 @@ impl DrawColorsImpl {
     }
 }
 
-// pub const A: &DrawColorsImpl = unsafe { &*(DRAW_COLORS as *const DrawColorsImpl) };
-
 #[cfg(test)]
 mod tests {
     use super::DrawColorsImpl;

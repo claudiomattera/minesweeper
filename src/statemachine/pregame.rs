@@ -7,27 +7,26 @@
 use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
+use crate::game::{Difficulty, Map};
 use crate::graphics::{draw_text, DrawColors};
 use crate::mouse::Mouse;
 use crate::wasm4::get_random_seed;
-use crate::Map;
 
 use super::{InGameState, State, Transition};
-
-const MINES_COUNT: usize = 30;
 
 #[derive(Clone)]
 pub struct PreGameState {
     map: Map,
+    difficulty: Difficulty,
 }
 
 impl PreGameState {
-    #[allow(clippy::new_without_default)]
-    pub fn new() -> Self {
+    pub fn new(difficulty: Difficulty) -> Self {
         let width = 16;
         let height = 14;
         Self {
             map: Map::new(width, height, (0, 20)),
+            difficulty,
         }
     }
 
@@ -35,7 +34,7 @@ impl PreGameState {
         self.map.draw(&[]);
 
         // Draw remaining mines count
-        let remaining_mines = 50;
+        let remaining_mines = self.difficulty.mines_count();
         let s = format!("Mines:{:02}", remaining_mines);
         DrawColors.set(0x03);
         draw_text(s, 160 - 64, 2);
@@ -45,17 +44,25 @@ impl PreGameState {
         draw_text(s, 2, 2);
     }
 
-    pub fn update(self, mouse: &Mouse) -> Transition {
+    pub fn update(mut self, mouse: &Mouse) -> Transition {
         if mouse.left_clicked() {
             let (mouse_x, mouse_y) = mouse.coordinates();
             if let Some((tx, ty)) = self.map.mouse_to_tile(mouse_x, mouse_y) {
-                let mut map = self.map;
-
                 let seed = get_random_seed();
-                let mines =
-                    Self::place_mines_from_random_seed(seed, map.width(), map.height(), tx, ty);
-                map.uncover_tile(tx, ty, &mines);
-                return Transition::Replace(State::InGame(InGameState::new(map, mines)));
+                let mines = self.place_mines_from_random_seed(
+                    seed,
+                    self.map.width(),
+                    self.map.height(),
+                    tx,
+                    ty,
+                );
+
+                self.map.uncover_tile(tx, ty, &mines);
+                return Transition::Replace(State::InGame(InGameState::new(
+                    self.difficulty,
+                    self.map,
+                    mines,
+                )));
             }
         }
 
@@ -63,6 +70,7 @@ impl PreGameState {
     }
 
     fn place_mines_from_random_seed(
+        &self,
         seed: u32,
         width: usize,
         height: usize,
@@ -72,7 +80,7 @@ impl PreGameState {
         let seed = (seed as u64) << 32 | seed as u64;
         let mut mines = Vec::new();
         let mut generator = XorShiftRng::seed_from_u64(seed);
-        for i in 0..MINES_COUNT {
+        for i in 0..self.difficulty.mines_count() {
             let mut x = generator.next_u32() as usize % width;
             let mut y = generator.next_u32() as usize % height;
             while mines[0..i].iter().any(|pos| *pos == (x, y))

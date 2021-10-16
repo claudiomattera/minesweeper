@@ -4,13 +4,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::game::{Difficulty, Map, HighScores};
 use crate::graphics::{draw_text, DrawColors};
 use crate::interface::draw_message_box;
 use crate::mouse::Mouse;
-use crate::Map;
 use crate::Timer;
 
-use super::{PreGameState, State, Transition};
+use super::{MainMenuState, State, Transition};
 
 #[derive(Clone)]
 pub struct GameWonState {
@@ -20,7 +20,11 @@ pub struct GameWonState {
 }
 
 impl GameWonState {
-    pub fn new(map: Map, mines: Vec<(usize, usize)>, timer: Timer) -> Self {
+    pub fn new(difficulty: Difficulty, map: Map, mines: Vec<(usize, usize)>, timer: Timer) -> Self {
+        let mut highscores = HighScores::load();
+        highscores.set(difficulty, timer.get() as u16);
+        highscores.save();
+
         Self { map, mines, timer }
     }
 
@@ -44,7 +48,7 @@ impl GameWonState {
 
     pub fn update(self, mouse: &Mouse) -> Transition {
         if mouse.left_clicked() {
-            return Transition::Replace(State::PreGame(PreGameState::new()));
+            return Transition::Replace(State::MainMenu(MainMenuState::new()));
         }
 
         Transition::Replace(State::GameWon(self))

@@ -6,7 +6,7 @@
 
 use crate::mouse::Mouse;
 
-use super::{PreGameState, State, Transition};
+use super::{MainMenuState, State, Transition};
 
 #[derive(Clone)]
 pub struct InitialState {}
@@ -20,6 +20,6 @@ impl InitialState {
     pub fn draw(&self) {}
 
     pub fn update(self, _mouse: &Mouse) -> Transition {
-        Transition::Push(State::Initial(self), State::PreGame(PreGameState::new()))
+        Transition::Push(State::Initial(self), State::MainMenu(MainMenuState::new()))
     }
 }

@@ -8,7 +8,7 @@
 
 use crate::graphics::{draw_rect, draw_text, DrawColors};
 
-/// Draw a rectangle using the current colours
+/// Draw a message box
 pub fn draw_message_box(text: &str, x: i32, y: i32) {
     let height = 15 + 8 * text.chars().filter(|c| *c == '\n').count() as u32;
     let width = 160 - 2 * x as u32;
