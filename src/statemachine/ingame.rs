@@ -16,12 +16,16 @@ use crate::Timer;
 
 use super::{GameOverState, GameWonState, PauseState, State, Transition};
 
+const MAX_CLICK_AGE: u8 = 10;
+
 #[derive(Clone)]
 pub struct InGameState {
     difficulty: Difficulty,
     map: Map,
     timer: Timer,
     mines: Vec<(usize, usize)>,
+    left_click_age: u8,
+    right_click_age: u8,
 }
 
 impl InGameState {
@@ -31,6 +35,8 @@ impl InGameState {
             map,
             mines,
             timer: Timer::new(),
+            left_click_age: 0,
+            right_click_age: 0,
         }
     }
 
@@ -80,27 +86,33 @@ impl InGameState {
             )));
         }
 
-        if mouse.left_clicked() && mouse.right_clicked() {
+        if mouse.left_clicked() {
+            self.left_click_age = MAX_CLICK_AGE;
+        }
+        if mouse.right_clicked() {
+            self.right_click_age = MAX_CLICK_AGE;
+        }
+
+        if self.left_click_age > 0 && self.right_click_age > 0 {
             let (x, y) = mouse.coordinates();
             map.handle_left_and_right_click(x, y, &self.mines);
-        } else {
-            if mouse.left_clicked() {
-                let (x, y) = mouse.coordinates();
-                if map.mouse_to_tile(x, y).is_none() {
-                    return Transition::Push(State::InGame(self), State::Pause(PauseState::new()));
-                }
-                map.handle_left_click(x, y, &self.mines);
+        } else if mouse.left_clicked() {
+            let (x, y) = mouse.coordinates();
+            if map.mouse_to_tile(x, y).is_none() {
+                return Transition::Push(State::InGame(self), State::Pause(PauseState::new()));
             }
-
-            if mouse.right_clicked() {
-                let (x, y) = mouse.coordinates();
-                map.handle_right_click(x, y);
-            }
+            map.handle_left_click(x, y, &self.mines);
+        } else if mouse.right_clicked() {
+            let (x, y) = mouse.coordinates();
+            map.handle_right_click(x, y);
         }
 
         if map.has_started() && !map.has_stepped_on_mine(&self.mines) && !has_found_all_mines {
             self.timer.update();
         }
+
+        self.left_click_age = self.left_click_age.saturating_sub(1);
+        self.right_click_age = self.right_click_age.saturating_sub(1);
 
         Transition::Replace(State::InGame(self))
     }
