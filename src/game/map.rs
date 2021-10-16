@@ -109,6 +109,18 @@ impl Map {
         }
     }
 
+    /// Handle simultaneous mouse left and right clicks on the map
+    pub fn handle_left_and_right_click(&mut self, mouse_x: i16, mouse_y: i16, mines: &[(usize, usize)]) {
+        if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
+            let neighbour_mines = self.count_neighbour_mines(mines, x, y);
+            let neighbour_flags = self.count_neighbour_flags(x, y);
+            if neighbour_mines == neighbour_flags {
+                let candidates = self.find_neighbouring_uncoverable_tiles(x, y, mines);
+                self.uncover_tiles(candidates, mines);
+            }
+        }
+    }
+
     /// Count the flagged tiles
     pub fn count_flagged_tiles(&self) -> usize {
         self.tiles

@@ -80,17 +80,22 @@ impl InGameState {
             )));
         }
 
-        if mouse.left_clicked() {
+        if mouse.left_clicked() && mouse.right_clicked() {
             let (x, y) = mouse.coordinates();
-            if map.mouse_to_tile(x, y).is_none() {
-                return Transition::Push(State::InGame(self), State::Pause(PauseState::new()));
+            map.handle_left_and_right_click(x, y, &self.mines);
+        } else {
+            if mouse.left_clicked() {
+                let (x, y) = mouse.coordinates();
+                if map.mouse_to_tile(x, y).is_none() {
+                    return Transition::Push(State::InGame(self), State::Pause(PauseState::new()));
+                }
+                map.handle_left_click(x, y, &self.mines);
             }
-            map.handle_left_click(x, y, &self.mines);
-        }
 
-        if mouse.right_clicked() {
-            let (x, y) = mouse.coordinates();
-            map.handle_right_click(x, y);
+            if mouse.right_clicked() {
+                let (x, y) = mouse.coordinates();
+                map.handle_right_click(x, y);
+            }
         }
 
         if map.has_started() && !map.has_stepped_on_mine(&self.mines) && !has_found_all_mines {
