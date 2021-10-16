@@ -29,7 +29,7 @@ impl MainMenuState {
     pub fn draw(&self) {
         let title = "MINESWEEPER";
         DrawColors.set(0x02);
-        draw_text(title, 1 + (160 - 8 * title.len() as i32) / 2, 1);
+        draw_text(title, 1 + (160 - 8 * title.len() as i32) / 2, 4);
         self.draw_menu_entry(0, "Start an easy game");
         self.draw_menu_entry(1, "Start a medium game");
         self.draw_menu_entry(2, "Start a hard game");
