@@ -124,8 +124,21 @@ impl Map {
     /// If they are the same, all non-flagged neighbouring tiles are also
     /// recursively uncovered.
     pub fn uncover_tile(&mut self, initial_x: usize, initial_y: usize, mines: &[(usize, usize)]) {
-        let mut tiles_to_uncover = vec![(initial_x, initial_y)];
+        let tiles = vec![(initial_x, initial_y)];
+        self.uncover_tiles(tiles, mines)
+    }
 
+    /// Recursively uncover tiles and their neighbours
+    ///
+    /// Once a tile is uncovered, the number of neighbouring mines and the
+    /// number of neighbouring flagged tiles are compared.
+    /// If they are the same, all non-flagged neighbouring tiles are also
+    /// recursively uncovered.
+    pub fn uncover_tiles(
+        &mut self,
+        mut tiles_to_uncover: Vec<(usize, usize)>,
+        mines: &[(usize, usize)],
+    ) {
         while let Some((x, y)) = tiles_to_uncover.pop() {
             match self.tile(x, y) {
                 Tile::Uncovered => continue,
