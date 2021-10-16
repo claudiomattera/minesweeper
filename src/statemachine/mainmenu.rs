@@ -40,8 +40,8 @@ impl MainMenuState {
         {
             let text = self.highscores
                 .get(*difficulty)
-                .map(|time| format!("{}: time:{}s", difficulty.as_ref(), time))
-                .unwrap_or_else(|| format!("{}: Unplayed", difficulty.as_ref()));
+                .map(|time| format!("{:6}  {} s", difficulty.as_ref(), time))
+                .unwrap_or_else(|| format!("{:6}  Unbeaten", difficulty.as_ref()));
             DrawColors.set(0x3);
             draw_text(text, 4, 82 + 10 * i as i32);
         }
