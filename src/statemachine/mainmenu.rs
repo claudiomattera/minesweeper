@@ -4,9 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::difficulty::Difficulty;
+use crate::game::{get_high_scores, Difficulty};
 use crate::graphics::{draw_rect, draw_text, DrawColors};
-use crate::highscores::get_high_scores;
 use crate::mouse::Mouse;
 
 use super::{PreGameState, State, Transition};

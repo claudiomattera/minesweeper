@@ -4,12 +4,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::difficulty::Difficulty;
+use crate::game::{save_high_score, Difficulty, Map};
 use crate::graphics::{draw_text, DrawColors};
-use crate::highscores::save_high_score;
 use crate::interface::draw_message_box;
 use crate::mouse::Mouse;
-use crate::Map;
 use crate::Timer;
 
 use super::{MainMenuState, State, Transition};

@@ -7,11 +7,10 @@
 use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
-use crate::difficulty::Difficulty;
+use crate::game::{Difficulty, Map};
 use crate::graphics::{draw_text, DrawColors};
 use crate::mouse::Mouse;
 use crate::wasm4::get_random_seed;
-use crate::Map;
 
 use super::{InGameState, State, Transition};
 

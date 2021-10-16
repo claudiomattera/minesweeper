@@ -7,8 +7,9 @@
 //! Functions for loading and saving high scores
 
 use crate::debug;
-use crate::difficulty::Difficulty;
 use crate::wasm4::{diskr, diskw};
+
+use super::Difficulty;
 
 /// Get the high scores
 ///

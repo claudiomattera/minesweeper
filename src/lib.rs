@@ -13,17 +13,12 @@ pub mod assets;
 
 pub mod debug;
 
-pub mod difficulty;
-
-pub mod highscores;
-
 pub mod interface;
 
 pub mod graphics;
 use graphics::{DrawColors, Palette};
 
-pub mod map;
-use map::Map;
+pub mod game;
 
 pub mod mouse;
 use mouse::Mouse;

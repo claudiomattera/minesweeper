@@ -4,15 +4,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::difficulty::Difficulty;
+use crate::game::{Difficulty, Map};
 
 use crate::graphics::{draw_text, DrawColors};
 
 use crate::mouse::Mouse;
 
 use crate::sound::play_game_over_sound;
-
-use crate::Map;
 
 use crate::Timer;
 
