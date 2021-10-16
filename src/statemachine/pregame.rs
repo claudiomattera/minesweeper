@@ -51,7 +51,11 @@ impl PreGameState {
             if let Some((tx, ty)) = self.map.mouse_to_tile(mouse_x, mouse_y) {
                 let seed = get_random_seed();
                 let mines = self.place_mines_from_random_seed(
-                    seed, self.map.width(), self.map.height(), tx, ty,
+                    seed,
+                    self.map.width(),
+                    self.map.height(),
+                    tx,
+                    ty,
                 );
 
                 self.map.uncover_tile(tx, ty, &mines);

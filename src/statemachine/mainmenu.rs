@@ -72,8 +72,10 @@ impl MainMenuState {
 
     fn is_mouse_inside_entry(&self, index: usize, mouse_x: i16, mouse_y: i16) -> bool {
         let (x, y) = self.entry_to_coordinates(index);
-        x <= mouse_x as i32 && mouse_x as i32 <= x + WIDTH as i32
-            && y <= mouse_y as i32 && mouse_y as i32 <= y + HEIGHT as i32
+        x <= mouse_x as i32
+            && mouse_x as i32 <= x + WIDTH as i32
+            && y <= mouse_y as i32
+            && mouse_y as i32 <= y + HEIGHT as i32
     }
 
     fn draw_menu_entry(&self, index: usize, text: &str) {
