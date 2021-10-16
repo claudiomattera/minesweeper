@@ -6,51 +6,54 @@
 
 //! Functions for loading and saving high scores
 
-use crate::wasm4::{diskr, diskw};
 use crate::debug;
+use crate::difficulty::Difficulty;
+use crate::wasm4::{diskr, diskw};
 
 /// Get the high scores
-pub fn get_high_scores() -> Vec<(u32, u32)> {
-    let mut highscores = Vec::new();
+pub fn get_high_scores() -> [Option<u16>; 3] {
+    let mut highscores = [None, None, None];
 
-    let mut buffer: [u8; 32] = [0; 32];
-    let bytes_read = unsafe {
-        diskr(&mut buffer as *mut u8, buffer.len() as u32)
-    };
-    let n = bytes_read as usize / 8;
-    for i in 0..n {
-        let difficulty = (buffer[i * 8 + 0] as u32) << 3 | (buffer[i * 8 + 1] as u32) << 2 | (buffer[i * 8 + 2] as u32) << 1 | (buffer[i * 8 + 3] as u32);
-        let time = (buffer[i * 8 + 4] as u32) << 3 | (buffer[i * 8 + 5] as u32) << 2 | (buffer[i * 8 + 6] as u32) << 1 | (buffer[i * 8 + 7] as u32);
-        highscores.push((difficulty, time));
+    let mut buffer: [u8; 3 * 3] = [0; 3 * 3];
+    let bytes_read = unsafe { diskr(&mut buffer as *mut u8, buffer.len() as u32) };
+    if bytes_read == buffer.len() as u32 {
+        for i in 0..3 {
+            let stored = buffer[i * 3] > 0;
+            if stored {
+                let time = (buffer[i * 3 + 1] as u16) | (buffer[i * 3 + 2] as u16) << 8;
+                highscores[i] = Some(time);
+            }
+        }
     }
 
     highscores
 }
 
 /// Get the high scores
-pub fn save_high_score(difficulty: u32, time: u32) {
+pub fn save_high_score(difficulty: Difficulty, time: u16) {
     let mut highscores = get_high_scores();
-    highscores.push((difficulty, time));
-    highscores.sort();
-    while highscores.len() > 4 {
-        highscores.pop();
-    }
 
-    let mut buffer: Vec<u8> = Vec::new();
+    let index = match difficulty {
+        Difficulty::Easy => 0,
+        Difficulty::Medium => 1,
+        Difficulty::Hard => 2,
+    };
 
-    for (difficulty, time) in &highscores {
-        buffer.push((difficulty >> 3) as u8);
-        buffer.push((difficulty >> 2) as u8);
-        buffer.push((difficulty >> 1) as u8);
-        buffer.push((difficulty >> 0) as u8);
-        buffer.push((time >> 3) as u8);
-        buffer.push((time >> 2) as u8);
-        buffer.push((time >> 1) as u8);
-        buffer.push((time >> 0) as u8);
+    let new_time = highscores[index].map_or(time, |old_time| std::cmp::min(old_time, time));
+    highscores[index] = Some(new_time);
+
+    let mut buffer: [u8; 3 * 3] = [0; 3 * 3];
+
+    for (i, time) in highscores.iter().enumerate() {
+        if let Some(time) = time {
+            buffer[i * 3] = 0xff;
+            buffer[i * 3 + 1] = *time as u8;
+            buffer[i * 3 + 2] = (time >> 8) as u8;
+        }
     }
 
     let bytes_written = unsafe { diskw(buffer.as_mut_ptr(), buffer.len() as u32) };
-    if bytes_written != 8 * highscores.len() as u32 {
-        debug!("Something wrong");
+    if bytes_written != 3 * highscores.len() as u32 {
+        debug!("Failed to save highscores");
     }
 }

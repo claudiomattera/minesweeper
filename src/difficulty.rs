@@ -7,6 +7,7 @@
 //! Difficulty structures and functions
 
 /// Represent the game difficulty
+#[derive(Clone)]
 pub enum Difficulty {
     /// An easy game with 10 mines
     Easy,
@@ -24,6 +25,16 @@ impl Difficulty {
             Difficulty::Easy => 10,
             Difficulty::Medium => 30,
             Difficulty::Hard => 60,
+        }
+    }
+}
+
+impl AsRef<str> for Difficulty {
+    fn as_ref(&self) -> &str {
+        match self {
+            Difficulty::Easy => "Easy",
+            Difficulty::Medium => "Medium",
+            Difficulty::Hard => "Hard",
         }
     }
 }

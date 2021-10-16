@@ -4,6 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::difficulty::Difficulty;
 use crate::graphics::{draw_text, DrawColors};
 use crate::highscores::save_high_score;
 use crate::interface::draw_message_box;
@@ -21,8 +22,8 @@ pub struct GameWonState {
 }
 
 impl GameWonState {
-    pub fn new(map: Map, mines: Vec<(usize, usize)>, timer: Timer) -> Self {
-        save_high_score(mines.len() as u32, timer.get());
+    pub fn new(difficulty: Difficulty, map: Map, mines: Vec<(usize, usize)>, timer: Timer) -> Self {
+        save_high_score(difficulty, timer.get() as u16);
         Self { map, mines, timer }
     }
 

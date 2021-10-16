@@ -12,7 +12,9 @@ use crate::mouse::Mouse;
 use super::{PreGameState, State, Transition};
 
 #[derive(Clone)]
-pub struct MainMenuState {}
+pub struct MainMenuState {
+    highscores: [Option<u16>; 3],
+}
 
 const WIDTH: u32 = 160 - 6;
 const HEIGHT: u32 = 14;
@@ -20,7 +22,9 @@ const HEIGHT: u32 = 14;
 impl MainMenuState {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
-        Self {}
+        Self {
+            highscores: get_high_scores(),
+        }
     }
 
     pub fn draw(&self) {
@@ -31,11 +35,17 @@ impl MainMenuState {
         self.draw_menu_entry(1, "Start a medium game");
         self.draw_menu_entry(2, "Start a hard game");
 
-        let highscores = get_high_scores();
         DrawColors.set(0x2);
         draw_text("HIGH SCORES", 4, 70);
-        for (i, (difficulty, time)) in highscores.iter().enumerate() {
-            let text = format!("Mines:{}, time:{}s", difficulty, time);
+        for (i, (time, difficulty)) in self
+            .highscores
+            .iter()
+            .zip([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard])
+            .enumerate()
+        {
+            let text = time
+                .map(|time| format!("{}: time:{}s", difficulty.as_ref(), time))
+                .unwrap_or_else(|| format!("{}: Unplayed", difficulty.as_ref()));
             DrawColors.set(0x3);
             draw_text(text, 4, 82 + 10 * i as i32);
         }
@@ -44,9 +54,11 @@ impl MainMenuState {
     pub fn update(self, mouse: &Mouse) -> Transition {
         if mouse.left_clicked() {
             let (mouse_x, mouse_y) = Mouse.coordinates();
-            for (index, difficulty) in (0..=2).zip([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard]) {
+            for (index, difficulty) in
+                (0..=2).zip([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard])
+            {
                 if self.is_mouse_inside_entry(index, mouse_x, mouse_y) {
-                    return Transition::Replace(State::PreGame(PreGameState::new(difficulty)))
+                    return Transition::Replace(State::PreGame(PreGameState::new(difficulty)));
                 }
             }
         }

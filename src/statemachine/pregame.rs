@@ -18,7 +18,7 @@ use super::{InGameState, State, Transition};
 #[derive(Clone)]
 pub struct PreGameState {
     map: Map,
-    mines_count: usize,
+    difficulty: Difficulty,
 }
 
 impl PreGameState {
@@ -27,7 +27,7 @@ impl PreGameState {
         let height = 14;
         Self {
             map: Map::new(width, height, (0, 20)),
-            mines_count: difficulty.mines_count(),
+            difficulty,
         }
     }
 
@@ -35,7 +35,7 @@ impl PreGameState {
         self.map.draw(&[]);
 
         // Draw remaining mines count
-        let remaining_mines = self.mines_count;
+        let remaining_mines = self.difficulty.mines_count();
         let s = format!("Mines:{:02}", remaining_mines);
         DrawColors.set(0x03);
         draw_text(s, 160 - 64, 2);
@@ -55,7 +55,11 @@ impl PreGameState {
                 );
 
                 self.map.uncover_tile(tx, ty, &mines);
-                return Transition::Replace(State::InGame(InGameState::new(self.map, mines)));
+                return Transition::Replace(State::InGame(InGameState::new(
+                    self.difficulty,
+                    self.map,
+                    mines,
+                )));
             }
         }
 
@@ -73,7 +77,7 @@ impl PreGameState {
         let seed = (seed as u64) << 32 | seed as u64;
         let mut mines = Vec::new();
         let mut generator = XorShiftRng::seed_from_u64(seed);
-        for i in 0..self.mines_count {
+        for i in 0..self.difficulty.mines_count() {
             let mut x = generator.next_u32() as usize % width;
             let mut y = generator.next_u32() as usize % height;
             while mines[0..i].iter().any(|pos| *pos == (x, y))

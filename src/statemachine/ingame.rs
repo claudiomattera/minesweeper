@@ -4,6 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::difficulty::Difficulty;
+
 use crate::graphics::{draw_text, DrawColors};
 
 use crate::mouse::Mouse;
@@ -18,14 +20,16 @@ use super::{GameOverState, GameWonState, PauseState, State, Transition};
 
 #[derive(Clone)]
 pub struct InGameState {
+    difficulty: Difficulty,
     map: Map,
     timer: Timer,
     mines: Vec<(usize, usize)>,
 }
 
 impl InGameState {
-    pub fn new(map: Map, mines: Vec<(usize, usize)>) -> Self {
+    pub fn new(difficulty: Difficulty, map: Map, mines: Vec<(usize, usize)>) -> Self {
         Self {
+            difficulty,
             map,
             mines,
             timer: Timer::new(),
@@ -71,7 +75,10 @@ impl InGameState {
                 map.flag_tile(*mx, *my);
             }
             return Transition::Replace(State::GameWon(GameWonState::new(
-                self.map, self.mines, self.timer,
+                self.difficulty,
+                self.map,
+                self.mines,
+                self.timer,
             )));
         }
 
