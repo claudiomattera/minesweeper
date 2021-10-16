@@ -4,39 +4,23 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use once_cell::unsync::OnceCell;
-
 use core::iter::Iterator;
 
-use rand_core::{RngCore, SeedableRng};
-use rand_xorshift::XorShiftRng;
-
-use crate::assets::FONT_SPRITE;
-use crate::debug;
-use crate::graphics::DrawColors;
-use crate::wasm4::{hline, rect, vline};
+use crate::graphics::Tile;
 
 const TILE_SIZE: u32 = 10;
 const MAX_WIDTH: usize = 16;
 const MAX_HEIGHT: usize = 16;
-const MAX_SIZE: usize = MAX_WIDTH * MAX_HEIGHT;
 
-pub struct Map<const MINES_COUNT: usize> {
+#[derive(Clone)]
+pub struct Map {
     offset: (i32, i32),
-    mines_positions: OnceCell<[(usize, usize); MINES_COUNT]>,
     tiles: Vec<Tile>,
     width: usize,
     height: usize,
 }
 
-#[derive(Clone, Copy)]
-enum Tile {
-    Covered,
-    Uncovered,
-    Flagged,
-}
-
-impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
+impl Map {
     pub fn new(width: usize, height: usize, offset: (i32, i32)) -> Self {
         debug_assert!(width <= MAX_WIDTH);
         debug_assert!(height <= MAX_HEIGHT);
@@ -44,61 +28,39 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         let tiles = vec![Tile::Covered; width * height];
         Self {
             offset,
-            mines_positions: OnceCell::new(),
             tiles,
             width,
             height,
         }
     }
 
-    pub fn mines_from_random_seed(
-        &self,
-        seed: u64,
-        forbidden_x: usize,
-        forbidden_y: usize,
-    ) -> [(usize, usize); MINES_COUNT] {
-        let mut mines_positions = [(0, 0); MINES_COUNT];
-        let mut generator = XorShiftRng::seed_from_u64(seed);
-        for i in 0..MINES_COUNT {
-            let mut x = generator.next_u32() as usize % self.width;
-            let mut y = generator.next_u32() as usize % self.height;
-            while mines_positions[0..i].iter().any(|pos| *pos == (x, y))
-                || x == forbidden_x && y == forbidden_y
-            {
-                x = generator.next_u32() as usize % self.width;
-                y = generator.next_u32() as usize % self.height;
-            }
-            mines_positions[i] = (x, y);
-        }
-        mines_positions
+    pub fn width(&self) -> usize {
+        self.width
+    }
+
+    pub fn height(&self) -> usize {
+        self.height
     }
 
     pub fn has_started(&self) -> bool {
-        self.mines_positions.get().is_some()
+        true
     }
 
-    pub fn has_stepped_on_mine(&self) -> bool {
-        self.mines_positions
-            .get()
-            .map(|mines_positions| {
-                mines_positions
-                    .iter()
-                    .map(|(x, y)| self.tile(*x, *y))
-                    .any(|tile| matches!(tile, Tile::Uncovered))
-            })
-            .unwrap_or(false)
+    pub fn has_stepped_on_mine(&self, mines: &[(usize, usize)]) -> bool {
+        mines
+            .iter()
+            .map(|(x, y)| self.tile(*x, *y))
+            .any(|tile| matches!(tile, Tile::Uncovered))
     }
 
-    pub fn has_found_all_mines(&self) -> bool {
-        let uncovered_tiles_count = self
-            .tiles
+    pub fn count_uncovered_tiles(&self) -> usize {
+        self.tiles
             .iter()
             .filter(|tile| matches!(tile, Tile::Uncovered))
-            .count();
-        uncovered_tiles_count + MINES_COUNT == self.width * self.height
+            .count()
     }
 
-    fn flag_tile(&mut self, tx: usize, ty: usize) {
+    pub fn flag_tile(&mut self, tx: usize, ty: usize) {
         match self.tile(tx, ty) {
             Tile::Uncovered => {}
             Tile::Covered => self.flag_individual_tile(tx, ty),
@@ -106,9 +68,9 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         }
     }
 
-    pub fn handle_left_click(&mut self, mouse_x: i16, mouse_y: i16) {
+    pub fn handle_left_click(&mut self, mouse_x: i16, mouse_y: i16, mines: &[(usize, usize)]) {
         if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
-            self.uncover_tile(x, y)
+            self.uncover_tile(x, y, mines)
         }
     }
 
@@ -118,35 +80,22 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         }
     }
 
-    pub fn count_remaining_mines(&self) -> usize {
-        MINES_COUNT - self.count_flagged_mines()
-    }
-
-    fn count_flagged_mines(&self) -> usize {
+    pub fn count_flagged_tiles(&self) -> usize {
         self.tiles
             .iter()
             .filter(|tile| matches!(tile, Tile::Flagged))
             .count()
     }
 
-    fn uncover_tile(&mut self, initial_x: usize, initial_y: usize) {
-        let _ = self.mines_positions.get_or_init(|| {
-            let seed = 0;
-            debug!("Creating map with seed {}", seed);
-            self.mines_from_random_seed(seed, initial_x, initial_y)
-        });
-
+    pub fn uncover_tile(&mut self, initial_x: usize, initial_y: usize, mines: &[(usize, usize)]) {
         let mut tiles_to_uncover = vec![(initial_x, initial_y)];
 
         while let Some((x, y)) = tiles_to_uncover.pop() {
-            debug!("{} tiles to uncover", tiles_to_uncover.len());
-            debug!("Uncovering tile {}x{}", x, y);
-
             match self.tile(x, y) {
                 Tile::Uncovered => continue,
                 Tile::Covered => {
                     self.uncover_individual_tile(x, y);
-                    let neighbour_mines = self.count_neighbour_mines(x, y);
+                    let neighbour_mines = self.count_neighbour_mines(mines, x, y);
                     let neighbour_flags = self.count_neighbour_flags(x, y);
                     if neighbour_mines == neighbour_flags {
                         let x = x as i32;
@@ -180,7 +129,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, mines: &[(usize, usize)]) {
         for tx in 0..self.width {
             for ty in 0..self.height {
                 let tile = self.tile(tx, ty);
@@ -188,51 +137,28 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
                 let x = tx as i32 * TILE_SIZE as i32;
                 let y = ty as i32 * TILE_SIZE as i32;
 
-                self.draw_tile_border(x, y);
+                let is_mine = mines.iter().any(|(mx, my)| (*mx, *my) == (tx, ty));
 
-                match tile {
-                    Tile::Covered => {
-                        self.draw_tile_cover(x, y);
-                    }
-                    Tile::Uncovered => {
-                        if self
-                            .mines_positions
-                            .get()
-                            .expect("Mines positions not initialized")
-                            .iter()
-                            .any(|(mx, my)| (*mx, *my) == (tx, ty))
-                        {
-                            self.draw_tile_character(x, y, Character::Mine);
-                        } else {
-                            let neighbour_mines = self.count_neighbour_mines(tx, ty);
-                            if neighbour_mines > 0 {
-                                self.draw_tile_character(x, y, Character::Number(neighbour_mines));
-                            }
-                        }
-                    }
-                    Tile::Flagged => {
-                        self.draw_tile_cover(x, y);
-                        self.draw_tile_character(x, y, Character::Flag);
-                    }
-                }
+                let neighbour_mines = self.count_neighbour_mines(mines, tx, ty);
+                tile.draw(
+                    self.offset.0 + x,
+                    self.offset.1 + y,
+                    is_mine,
+                    neighbour_mines,
+                );
             }
         }
     }
 
-    fn count_neighbour_mines(&self, x: usize, y: usize) -> usize {
-        self.mines_positions
-            .get()
-            .map(|mines_positions| {
-                mines_positions
-                    .iter()
-                    .filter(|(mx, my)| {
-                        let horizontally_adjacent = (*mx as i32 - x as i32).abs() <= 1;
-                        let vertically_adjacent = (*my as i32 - y as i32).abs() <= 1;
-                        horizontally_adjacent && vertically_adjacent
-                    })
-                    .count()
+    fn count_neighbour_mines(&self, mines: &[(usize, usize)], x: usize, y: usize) -> usize {
+        mines
+            .iter()
+            .filter(|(mx, my)| {
+                let horizontally_adjacent = (*mx as i32 - x as i32).abs() <= 1;
+                let vertically_adjacent = (*my as i32 - y as i32).abs() <= 1;
+                horizontally_adjacent && vertically_adjacent
             })
-            .unwrap_or(0)
+            .count()
     }
 
     fn count_neighbour_flags(&self, x: usize, y: usize) -> usize {
@@ -277,7 +203,7 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
         self.tiles[x + y * self.width] = Tile::Covered;
     }
 
-    fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
+    pub fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
         let mouse_x = mouse_x - self.offset.0 as i16;
         let mouse_y = mouse_y - self.offset.1 as i16;
         if mouse_x < 0
@@ -291,60 +217,4 @@ impl<const MINES_COUNT: usize> Map<MINES_COUNT> {
             Some((x as usize, y as usize))
         }
     }
-
-    fn draw_tile_border(&self, x: i32, y: i32) {
-        DrawColors.set(0x2);
-        vline(self.offset.0 + x, self.offset.1 + y, TILE_SIZE - 1);
-        hline(self.offset.0 + x, self.offset.1 + y, TILE_SIZE - 1);
-    }
-
-    fn draw_tile_cover(&self, x: i32, y: i32) {
-        DrawColors.set(0x3);
-        rect(
-            self.offset.0 + x + 1,
-            self.offset.1 + y + 1,
-            TILE_SIZE - 2,
-            TILE_SIZE - 2,
-        );
-    }
-
-    fn draw_tile_character(&self, x: i32, y: i32, c: Character) {
-        let offset = ((TILE_SIZE - 8) / 2) as i32;
-        DrawColors.set(0x2240);
-        match c {
-            Character::Number(n) => FONT_SPRITE.blit_sub(
-                self.offset.0 + x + offset,
-                self.offset.1 + y + offset,
-                8,
-                8,
-                8 * n as u32,
-                0,
-            ),
-            Character::Mine => {
-                DrawColors.set(0x1142);
-                FONT_SPRITE.blit_sub(
-                    self.offset.0 + x + offset,
-                    self.offset.1 + y + offset,
-                    8,
-                    8,
-                    8 * 7,
-                    8 * 8,
-                );
-            }
-            Character::Flag => FONT_SPRITE.blit_sub(
-                self.offset.0 + x + offset,
-                self.offset.1 + y + offset,
-                8,
-                8,
-                8,
-                8,
-            ),
-        }
-    }
-}
-
-enum Character {
-    Number(usize),
-    Mine,
-    Flag,
 }
