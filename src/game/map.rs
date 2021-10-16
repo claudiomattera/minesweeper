@@ -147,28 +147,11 @@ impl Map {
                     let neighbour_mines = self.count_neighbour_mines(mines, x, y);
                     let neighbour_flags = self.count_neighbour_flags(x, y);
                     if neighbour_mines == neighbour_flags {
-                        let x = x as i32;
-                        let y = y as i32;
-                        let candidates = [
-                            (x + 1, y + 1),
-                            (x + 1, y - 1),
-                            (x - 1, y + 1),
-                            (x - 1, y - 1),
-                            (x, y + 1),
-                            (x, y - 1),
-                            (x + 1, y),
-                            (x - 1, y),
-                        ];
+                        let candidates = self.find_neighbouring_uncoverable_tiles(x, y, mines);
                         for (cx, cy) in candidates {
-                            if cx >= 0
-                                && cy >= 0
-                                && cx < self.width as i32
-                                && cy < self.height as i32
-                            {
-                                let tile = (cx as usize, cy as usize);
-                                if !tiles_to_uncover.iter().any(|t| *t == tile) {
-                                    tiles_to_uncover.push(tile);
-                                }
+                            let tile = (cx as usize, cy as usize);
+                            if !tiles_to_uncover.iter().any(|t| *t == tile) {
+                                tiles_to_uncover.push(tile);
                             }
                         }
                     }
@@ -176,6 +159,36 @@ impl Map {
                 Tile::Flagged => continue,
             }
         }
+    }
+
+    fn find_neighbouring_uncoverable_tiles(
+        &self,
+        x: usize,
+        y: usize,
+        mines: &[(usize, usize)],
+    ) -> Vec<(usize, usize)> {
+        // Must be a signed type to check for negative indices
+        let x = x as i32;
+        let y = y as i32;
+        vec![
+                (x + 1, y + 1),
+                (x + 1, y - 1),
+                (x - 1, y + 1),
+                (x - 1, y - 1),
+                (x, y + 1),
+                (x, y - 1),
+                (x + 1, y),
+                (x - 1, y),
+            ]
+            .into_iter()
+            .filter(|(cx, cy)| {
+                *cx >= 0
+                && *cy >= 0
+                && *cx < self.width as i32
+                && *cy < self.height as i32
+            })
+            .map(|(cx, cy)| (cx as usize, cy as usize))
+            .collect()
     }
 
     /// Draw the map
