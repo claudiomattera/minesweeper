@@ -14,7 +14,11 @@ pub struct Mouse;
 static mut PREVIOUS_BUTTONS: u8 = 0;
 
 impl Mouse {
-    /// Update status of previous buttons
+    /// Update previous status of buttons
+    ///
+    /// The previous status of mouse buttons is used to detect clicks.
+    /// A click happens when the previous status was down and the current
+    /// status is up.
     pub fn update(&self) {
         unsafe { PREVIOUS_BUTTONS = *MOUSE_BUTTONS }
     }

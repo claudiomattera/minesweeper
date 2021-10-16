@@ -4,6 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+//! Game map
+
 use core::iter::Iterator;
 
 use crate::graphics::Tile;
@@ -12,6 +14,13 @@ const TILE_SIZE: u32 = 10;
 const MAX_WIDTH: usize = 16;
 const MAX_HEIGHT: usize = 16;
 
+/// Represent the game map
+///
+/// The game map is a minefield.
+/// It contains a matrix of tiles, which can be either covered, uncovered or
+/// flagged.
+///
+/// It also contains the offset to which the map is drawn.
 #[derive(Clone)]
 pub struct Map {
     offset: (i32, i32),
@@ -21,6 +30,7 @@ pub struct Map {
 }
 
 impl Map {
+    /// Create a new map with given size and drawing offset
     pub fn new(width: usize, height: usize, offset: (i32, i32)) -> Self {
         debug_assert!(width <= MAX_WIDTH);
         debug_assert!(height <= MAX_HEIGHT);
@@ -34,10 +44,12 @@ impl Map {
         }
     }
 
+    /// Return the map's width
     pub fn width(&self) -> usize {
         self.width
     }
 
+    /// Return the map's height
     pub fn height(&self) -> usize {
         self.height
     }
@@ -46,6 +58,7 @@ impl Map {
         true
     }
 
+    /// Check whether an uncovered tile contains a mine
     pub fn has_stepped_on_mine(&self, mines: &[(usize, usize)]) -> bool {
         mines
             .iter()
@@ -53,6 +66,7 @@ impl Map {
             .any(|tile| matches!(tile, Tile::Uncovered))
     }
 
+    /// Count the uncovered tiles
     pub fn count_uncovered_tiles(&self) -> usize {
         self.tiles
             .iter()
@@ -60,6 +74,10 @@ impl Map {
             .count()
     }
 
+    /// Flag a tile
+    ///
+    /// This function flip the flagged status, from flagged to covered and
+    /// viceversa
     pub fn flag_tile(&mut self, tx: usize, ty: usize) {
         match self.tile(tx, ty) {
             Tile::Uncovered => {}
@@ -68,18 +86,21 @@ impl Map {
         }
     }
 
+    /// Handle mouse left clicks on the map
     pub fn handle_left_click(&mut self, mouse_x: i16, mouse_y: i16, mines: &[(usize, usize)]) {
         if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
             self.uncover_tile(x, y, mines)
         }
     }
 
+    /// Handle mouse right clicks on the map
     pub fn handle_right_click(&mut self, mouse_x: i16, mouse_y: i16) {
         if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
             self.flag_tile(x, y)
         }
     }
 
+    /// Count the flagged tiles
     pub fn count_flagged_tiles(&self) -> usize {
         self.tiles
             .iter()
@@ -87,6 +108,12 @@ impl Map {
             .count()
     }
 
+    /// Recursively uncover a tile and its neighbours
+    ///
+    /// Once a tile is uncovered, the number of neighbouring mines and the
+    /// number of neighbouring flagged tiles are compared.
+    /// If they are the same, all non-flagged neighbouring tiles are also
+    /// recursively uncovered.
     pub fn uncover_tile(&mut self, initial_x: usize, initial_y: usize, mines: &[(usize, usize)]) {
         let mut tiles_to_uncover = vec![(initial_x, initial_y)];
 
@@ -129,6 +156,7 @@ impl Map {
         }
     }
 
+    /// Draw the map
     pub fn draw(&self, mines: &[(usize, usize)]) {
         for tx in 0..self.width {
             for ty in 0..self.height {
@@ -203,6 +231,7 @@ impl Map {
         self.tiles[x + y * self.width] = Tile::Covered;
     }
 
+    /// Map mouse coordinates to tile coordinates
     pub fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
         let mouse_x = mouse_x - self.offset.0 as i16;
         let mouse_y = mouse_y - self.offset.1 as i16;

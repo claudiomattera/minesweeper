@@ -11,6 +11,8 @@ use crate::difficulty::Difficulty;
 use crate::wasm4::{diskr, diskw};
 
 /// Get the high scores
+///
+/// The result is a list of optional times in seconds, one for each difficulty.
 pub fn get_high_scores() -> [Option<u16>; 3] {
     let mut highscores = [None, None, None];
 
@@ -29,7 +31,10 @@ pub fn get_high_scores() -> [Option<u16>; 3] {
     highscores
 }
 
-/// Get the high scores
+/// Save a new highscore
+///
+/// The score is saved only if better than the current one, i.e. if the time is
+/// smaller.
 pub fn save_high_score(difficulty: Difficulty, time: u16) {
     let mut highscores = get_high_scores();
 

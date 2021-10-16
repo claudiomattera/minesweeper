@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//! A game engine library based on WASM-4
+//! A game engine library implementing Minesweeper based on WASM-4 engine
 
 #[cfg(feature = "buddy-alloc")]
 mod alloc;

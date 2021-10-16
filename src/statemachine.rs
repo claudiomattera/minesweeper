@@ -35,6 +35,7 @@ use pregame::PreGameState;
 mod ingame;
 use ingame::InGameState;
 
+/// The game state machine
 pub static mut STATE_MACHINE: Lazy<Machine> = Lazy::new(|| Machine {
     states_stack: vec![State::Initial(InitialState::new())],
 });
@@ -62,7 +63,14 @@ impl Machine {
         }
     }
 
-    /// Update all states in the stack
+    /// Update the top state on the stack
+    ///
+    /// The update returns a transition, which might change the content of the
+    /// stack.
+    ///
+    /// The top state is always popped from the stack.
+    /// If the current state wants to remain on the stack, it must return a
+    /// [`Transition::Replace`] transition containing itself.
     pub fn update(&mut self, mouse: &Mouse) {
         let state: State = self.states_stack.pop().expect("Empty state machine!!!");
         let transition: Transition = state.update(mouse);
@@ -97,6 +105,9 @@ impl Machine {
 /// A state transition
 pub enum Transition {
     /// The current state is replaced with a new state
+    ///
+    /// The new state can be identical to the old state, which is functionally
+    /// the same as not changing the stack.
     Replace(State),
 
     /// A new state is pushed on top of the current state

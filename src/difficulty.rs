@@ -20,6 +20,7 @@ pub enum Difficulty {
 }
 
 impl Difficulty {
+    /// Return the mines count for this difficulty
     pub fn mines_count(&self) -> usize {
         match self {
             Difficulty::Easy => 10,
