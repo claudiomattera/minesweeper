@@ -107,7 +107,7 @@ impl InGameState {
             map.handle_right_click(x, y);
         }
 
-        if map.has_started() && !map.has_stepped_on_mine(&self.mines) && !has_found_all_mines {
+        if !map.has_stepped_on_mine(&self.mines) && !has_found_all_mines {
             self.timer.update();
         }
 

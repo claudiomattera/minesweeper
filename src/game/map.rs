@@ -54,10 +54,6 @@ impl Map {
         self.height
     }
 
-    pub fn has_started(&self) -> bool {
-        true
-    }
-
     /// Check whether an uncovered tile contains a mine
     pub fn has_stepped_on_mine(&self, mines: &[(usize, usize)]) -> bool {
         mines
