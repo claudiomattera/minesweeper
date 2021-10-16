@@ -107,9 +107,7 @@ impl InGameState {
             map.handle_right_click(x, y);
         }
 
-        if !map.has_stepped_on_mine(&self.mines) && !has_found_all_mines {
-            self.timer.update();
-        }
+        self.timer.update();
 
         self.left_click_age = self.left_click_age.saturating_sub(1);
         self.right_click_age = self.right_click_age.saturating_sub(1);
