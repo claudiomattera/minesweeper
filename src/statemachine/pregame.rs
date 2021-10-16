@@ -7,6 +7,7 @@
 use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
+use crate::difficulty::Difficulty;
 use crate::graphics::{draw_text, DrawColors};
 use crate::mouse::Mouse;
 use crate::wasm4::get_random_seed;
@@ -21,12 +22,12 @@ pub struct PreGameState {
 }
 
 impl PreGameState {
-    pub fn new(mines_count: usize) -> Self {
+    pub fn new(difficulty: Difficulty) -> Self {
         let width = 16;
         let height = 14;
         Self {
             map: Map::new(width, height, (0, 20)),
-            mines_count,
+            mines_count: difficulty.mines_count(),
         }
     }
 

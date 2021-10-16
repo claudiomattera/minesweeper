@@ -13,6 +13,8 @@ pub mod assets;
 
 pub mod debug;
 
+pub mod difficulty;
+
 pub mod highscores;
 
 pub mod interface;

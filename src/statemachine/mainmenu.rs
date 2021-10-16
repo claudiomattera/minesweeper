@@ -4,6 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::difficulty::Difficulty;
 use crate::graphics::{draw_rect, draw_text, DrawColors};
 use crate::highscores::get_high_scores;
 use crate::mouse::Mouse;
@@ -43,10 +44,9 @@ impl MainMenuState {
     pub fn update(self, mouse: &Mouse) -> Transition {
         if mouse.left_clicked() {
             let (mouse_x, mouse_y) = Mouse.coordinates();
-            for index in 0..=2 {
+            for (index, difficulty) in (0..=2).zip([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard]) {
                 if self.is_mouse_inside_entry(index, mouse_x, mouse_y) {
-                    let mines_count = self.mines_count_for_difficulty(index);
-                    return Transition::Replace(State::PreGame(PreGameState::new(mines_count)))
+                    return Transition::Replace(State::PreGame(PreGameState::new(difficulty)))
                 }
             }
         }
@@ -83,14 +83,5 @@ impl MainMenuState {
             DrawColors.set(0x03);
         }
         draw_text(text, x + 1, y + 3);
-    }
-
-    fn mines_count_for_difficulty(&self, index: usize) -> usize {
-        match index {
-            0 => 10,
-            1 => 30,
-            2 => 60,
-            _ => unreachable!(),
-        }
     }
 }
