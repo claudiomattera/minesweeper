@@ -16,6 +16,10 @@ categories = [
 ]
 publish = false
 
+[package.metadata.docs.rs]
+all-features = true
+default-target = "x86_64-unknown-linux-gnu"
+
 [features]
 # use `--no-default-features` or comment out next line to disable allocator
 default = ["buddy-alloc", "debug"]
