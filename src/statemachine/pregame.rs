@@ -35,7 +35,7 @@ impl PreGameState {
 
         // Draw remaining mines count
         let remaining_mines = self.difficulty.mines_count();
-        let s = format!("Mines:{:02}", remaining_mines);
+        let s = format!("Mines:{:2}", remaining_mines);
         DrawColors.set(0x03);
         draw_text(s, 160 - 64, 2);
 
