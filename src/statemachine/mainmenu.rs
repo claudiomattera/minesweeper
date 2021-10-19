@@ -8,7 +8,7 @@ use crate::game::{Difficulty, HighScores};
 use crate::graphics::{draw_rect, draw_text, DrawColors};
 use crate::mouse::Mouse;
 
-use super::{PreGameState, State, Transition};
+use super::{InstructionsState, PreGameState, State, Transition};
 
 #[derive(Clone)]
 pub struct MainMenuState {
@@ -34,8 +34,10 @@ impl MainMenuState {
         self.draw_menu_entry(1, "Start a medium game");
         self.draw_menu_entry(2, "Start a hard game");
 
+        self.draw_menu_entry(3, "Instructions");
+
         DrawColors.set(0x2);
-        draw_text("HIGH SCORES", 4, 70);
+        draw_text("HIGH SCORES", 4, 90);
         for (i, difficulty) in ([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard]).iter().enumerate()
         {
             let text = self.highscores
@@ -43,7 +45,7 @@ impl MainMenuState {
                 .map(|time| format!("{:6}  {} s", difficulty.as_ref(), time))
                 .unwrap_or_else(|| format!("{:6}  Unbeaten", difficulty.as_ref()));
             DrawColors.set(0x3);
-            draw_text(text, 4, 82 + 10 * i as i32);
+            draw_text(text, 4, 102 + 10 * i as i32);
         }
 
         let text = format!("Version {}", env!("CARGO_PKG_VERSION"));
@@ -60,6 +62,13 @@ impl MainMenuState {
                 if self.is_mouse_inside_entry(index, mouse_x, mouse_y) {
                     return Transition::Replace(State::PreGame(PreGameState::new(difficulty)));
                 }
+            }
+
+            if self.is_mouse_inside_entry(3, mouse_x, mouse_y) {
+                return Transition::Push(
+                    State::MainMenu(self),
+                    State::Instructions(InstructionsState::new()),
+                );
             }
         }
 

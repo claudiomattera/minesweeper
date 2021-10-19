@@ -23,6 +23,9 @@ use gameover::GameOverState;
 mod gamewon;
 use gamewon::GameWonState;
 
+mod instructions;
+use instructions::InstructionsState;
+
 mod mainmenu;
 use mainmenu::MainMenuState;
 
@@ -143,6 +146,9 @@ pub enum State {
 
     /// The state of main menu
     MainMenu(MainMenuState),
+
+    /// The state of main menu
+    Instructions(InstructionsState),
 }
 
 impl State {
@@ -156,6 +162,7 @@ impl State {
             State::GameWon(_) => "game_won",
             State::Pause(_) => "pause",
             State::MainMenu(_) => "main_menu",
+            State::Instructions(_) => "instructions",
         }
     }
 
@@ -171,6 +178,7 @@ impl State {
             State::GameWon(s) => s.draw(),
             State::Pause(s) => s.draw(),
             State::MainMenu(s) => s.draw(),
+            State::Instructions(s) => s.draw(),
         }
     }
 
@@ -186,6 +194,7 @@ impl State {
             State::GameWon(state) => state.update(mouse),
             State::Pause(state) => state.update(mouse),
             State::MainMenu(state) => state.update(mouse),
+            State::Instructions(state) => state.update(mouse),
         }
     }
 }
