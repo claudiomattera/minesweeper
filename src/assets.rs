@@ -10,9 +10,9 @@ use crate::graphics::Sprite;
 
 include!(concat!(env!("OUT_DIR"), "/sprites.rs"));
 
-pub const FONT_SPRITE: Sprite = Sprite {
-    width: sprites::FONT_WIDTH,
-    height: sprites::FONT_HEIGHT,
-    flags: sprites::FONT_FLAGS,
-    data: &sprites::FONT,
-};
+pub const FONT_SPRITE: Sprite = Sprite::new(
+    sprites::FONT_WIDTH,
+    sprites::FONT_HEIGHT,
+    sprites::FONT_FLAGS,
+    &sprites::FONT,
+);

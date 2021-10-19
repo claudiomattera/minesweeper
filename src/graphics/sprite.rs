@@ -18,7 +18,7 @@ pub struct Sprite {
 
 impl Sprite {
     /// Create a new sprite
-    pub fn new(width: u32, height: u32, flags: u32, data: &'static [u8]) -> Self {
+    pub const fn new(width: u32, height: u32, flags: u32, data: &'static [u8]) -> Self {
         Self {
             width,
             height,
