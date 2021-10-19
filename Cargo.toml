@@ -33,7 +33,7 @@ rand_xorshift = { version = "0.3" }
 once_cell = { version = "1.8" }
 
 [build-dependencies]
-png2wasm4src = { version = "0.1.0", git = "https://git.claudiomattera.it/claudiomattera/png2wasm4src/"}
+png2wasm4src = { version = "0.1.0" }
 
 [profile.release]
 opt-level = "z"

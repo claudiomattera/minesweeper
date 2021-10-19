@@ -284,7 +284,8 @@ dependencies = [
 [[package]]
 name = "png2wasm4src"
 version = "0.1.0"
-source = "git+https://git.claudiomattera.it/claudiomattera/png2wasm4src/#6e3b9a96c535f64892ab45eb7ee2c8d9987330d9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6e82871c758404670f841d54f781a70a0d567c78c58c6024c9abbe3692e771f9"
 dependencies = [
  "image",
  "png 0.17.2",
