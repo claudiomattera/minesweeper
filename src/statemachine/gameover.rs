@@ -24,7 +24,7 @@ impl GameOverState {
         Self { map, mines, timer }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, _mouse: Option<Mouse>) {
         self.map.draw(&self.mines);
 
         // Draw remaining mines count

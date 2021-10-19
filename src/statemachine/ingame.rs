@@ -40,7 +40,7 @@ impl InGameState {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, _mouse: Option<Mouse>) {
         let map = &self.map;
 
         // Draw map

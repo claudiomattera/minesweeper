@@ -21,7 +21,7 @@ impl InstructionsState {
         Self { index: 0 }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, _mouse: Option<Mouse>) {
         let x = 10;
         let y = 10;
 

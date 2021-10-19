@@ -30,7 +30,7 @@ impl PreGameState {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, _mouse: Option<Mouse>) {
         self.map.draw(&[]);
 
         // Draw remaining mines count

@@ -18,7 +18,7 @@ impl PauseState {
         Self {}
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, _mouse: Option<Mouse>) {
         let x = 16;
         let y = 30;
 

@@ -17,7 +17,7 @@ impl InitialState {
         Self {}
     }
 
-    pub fn draw(&self) {}
+    pub fn draw(&self, _mouse: Option<Mouse>) {}
 
     pub fn update(self, _mouse: &Mouse) -> Transition {
         Transition::Push(State::Initial(self), State::MainMenu(MainMenuState::new()))

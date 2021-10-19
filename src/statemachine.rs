@@ -59,9 +59,14 @@ pub struct Machine {
 impl Machine {
     /// Draw all states in the stack
     pub fn draw(&self) {
-        for state in &self.states_stack {
+        for (i, state) in self.states_stack.iter().enumerate() {
+            let mouse = if i == self.states_stack.len() - 1 {
+                Some(Mouse)
+            } else {
+                None
+            };
             let original_colors = DrawColors.get();
-            state.draw();
+            state.draw(mouse);
             DrawColors.set(original_colors);
         }
     }
@@ -169,16 +174,16 @@ impl State {
     /// Draw the current state
     ///
     /// This function delegates the drawing to the state data.
-    pub fn draw(&self) {
+    pub fn draw(&self, mouse: Option<Mouse>) {
         match self {
-            State::Initial(s) => s.draw(),
-            State::PreGame(s) => s.draw(),
-            State::InGame(s) => s.draw(),
-            State::GameOver(s) => s.draw(),
-            State::GameWon(s) => s.draw(),
-            State::Pause(s) => s.draw(),
-            State::MainMenu(s) => s.draw(),
-            State::Instructions(s) => s.draw(),
+            State::Initial(s) => s.draw(mouse),
+            State::PreGame(s) => s.draw(mouse),
+            State::InGame(s) => s.draw(mouse),
+            State::GameOver(s) => s.draw(mouse),
+            State::GameWon(s) => s.draw(mouse),
+            State::Pause(s) => s.draw(mouse),
+            State::MainMenu(s) => s.draw(mouse),
+            State::Instructions(s) => s.draw(mouse),
         }
     }
 

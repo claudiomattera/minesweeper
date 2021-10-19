@@ -26,15 +26,15 @@ impl MainMenuState {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, mouse: Option<Mouse>) {
         let title = "MINESWEEPER";
         DrawColors.set(0x02);
         draw_text(title, 1 + (160 - 8 * title.len() as i32) / 2, 4);
-        self.draw_menu_entry(0, "Start an easy game");
-        self.draw_menu_entry(1, "Start a medium game");
-        self.draw_menu_entry(2, "Start a hard game");
+        self.draw_menu_entry(0, "Start an easy game", mouse);
+        self.draw_menu_entry(1, "Start a medium game", mouse);
+        self.draw_menu_entry(2, "Start a hard game", mouse);
 
-        self.draw_menu_entry(3, "Instructions");
+        self.draw_menu_entry(3, "Instructions", mouse);
 
         DrawColors.set(0x2);
         draw_text("HIGH SCORES", 4, 90);
@@ -87,11 +87,15 @@ impl MainMenuState {
             && mouse_y as i32 <= y + HEIGHT as i32
     }
 
-    fn draw_menu_entry(&self, index: usize, text: &str) {
+    fn draw_menu_entry(&self, index: usize, text: &str, mouse: Option<Mouse>) {
         let (x, y) = self.entry_to_coordinates(index);
 
-        let (mouse_x, mouse_y) = Mouse.coordinates();
-        let is_highlighted = self.is_mouse_inside_entry(index, mouse_x, mouse_y);
+        let is_highlighted = mouse
+            .map(|mouse| {
+                let (mouse_x, mouse_y) = mouse.coordinates();
+                self.is_mouse_inside_entry(index, mouse_x, mouse_y)
+            })
+            .unwrap_or(false);
 
         if is_highlighted {
             DrawColors.set(0x02);
