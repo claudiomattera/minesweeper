@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::graphics::{draw_text, DrawColors};
+use crate::graphics::{draw_text, DrawColors, Palette};
 use crate::interface::draw_message_box;
 use crate::mouse::Mouse;
 use crate::game::Map;
@@ -25,6 +25,8 @@ impl GameOverState {
     }
 
     pub fn draw(&self, _mouse: Option<Mouse>) {
+        Palette::Rustic.set();
+
         self.map.draw(&self.mines);
 
         // Draw remaining mines count

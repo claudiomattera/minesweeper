@@ -16,7 +16,7 @@ pub mod debug;
 pub mod interface;
 
 pub mod graphics;
-use graphics::{DrawColors, Palette};
+use graphics::DrawColors;
 
 pub mod game;
 
@@ -39,7 +39,6 @@ use wasm4::*;
 
 #[no_mangle]
 fn start() {
-    Palette::Hollow.set();
 }
 
 #[no_mangle]

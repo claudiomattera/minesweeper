@@ -6,7 +6,7 @@
 
 use crate::game::{Difficulty, Map};
 
-use crate::graphics::{draw_text, DrawColors};
+use crate::graphics::{draw_text, DrawColors, Palette};
 
 use crate::mouse::Mouse;
 
@@ -41,6 +41,8 @@ impl InGameState {
     }
 
     pub fn draw(&self, _mouse: Option<Mouse>) {
+        Palette::Hollow.set();
+
         let map = &self.map;
 
         // Draw map

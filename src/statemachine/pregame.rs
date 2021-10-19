@@ -8,7 +8,7 @@ use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use crate::game::{Difficulty, Map};
-use crate::graphics::{draw_text, DrawColors};
+use crate::graphics::{draw_text, DrawColors, Palette};
 use crate::mouse::Mouse;
 use crate::wasm4::get_random_seed;
 
@@ -31,6 +31,8 @@ impl PreGameState {
     }
 
     pub fn draw(&self, _mouse: Option<Mouse>) {
+        Palette::Hollow.set();
+
         self.map.draw(&[]);
 
         // Draw remaining mines count

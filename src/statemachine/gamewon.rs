@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::game::{Difficulty, Map, HighScores};
-use crate::graphics::{draw_text, DrawColors};
+use crate::graphics::{draw_text, DrawColors, Palette};
 use crate::interface::draw_message_box;
 use crate::mouse::Mouse;
 use crate::Timer;
@@ -29,6 +29,8 @@ impl GameWonState {
     }
 
     pub fn draw(&self, _mouse: Option<Mouse>) {
+        Palette::IceCream.set();
+
         self.map.draw(&self.mines);
 
         // Draw remaining mines count

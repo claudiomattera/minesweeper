@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::game::{Difficulty, HighScores};
-use crate::graphics::{draw_rect, draw_text, DrawColors};
+use crate::graphics::{draw_rect, draw_text, DrawColors, Palette};
 use crate::mouse::Mouse;
 
 use super::{InstructionsState, PreGameState, State, Transition};
@@ -27,6 +27,8 @@ impl MainMenuState {
     }
 
     pub fn draw(&self, mouse: Option<Mouse>) {
+        Palette::Wheat.set();
+
         let title = "MINESWEEPER";
         DrawColors.set(0x02);
         draw_text(title, 1 + (160 - 8 * title.len() as i32) / 2, 4);
