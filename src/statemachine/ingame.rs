@@ -6,7 +6,7 @@
 
 use crate::game::{Difficulty, Map};
 use crate::graphics::{draw_text, DrawColors, Palette};
-use crate::Mouse;
+use crate::input::Mouse;
 use crate::sound::play_game_over_sound;
 use crate::Timer;
 

@@ -6,7 +6,7 @@
 
 use crate::graphics::{draw_text, DrawColors, Palette};
 use crate::interface::draw_message_box;
-use crate::Mouse;
+use crate::input::Mouse;
 use crate::game::Map;
 use crate::Timer;
 

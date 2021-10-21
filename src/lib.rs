@@ -15,13 +15,13 @@ pub mod debug;
 
 pub mod interface;
 
+pub mod input;
+use input::Mouse;
+
 pub mod graphics;
 use graphics::DrawColors;
 
 pub mod game;
-
-pub mod mouse;
-use mouse::Mouse;
 
 pub mod ticker;
 use ticker::Ticker;
