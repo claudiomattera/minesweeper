@@ -6,7 +6,7 @@
 
 use crate::game::{Difficulty, HighScores};
 use crate::graphics::{draw_rect, draw_text, DrawColors, Palette};
-use crate::mouse::Mouse;
+use crate::Mouse;
 
 use super::{InstructionsState, PreGameState, State, Transition};
 

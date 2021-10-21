@@ -7,7 +7,7 @@
 use crate::game::{Difficulty, Map, HighScores};
 use crate::graphics::{draw_text, DrawColors, Palette};
 use crate::interface::draw_message_box;
-use crate::mouse::Mouse;
+use crate::Mouse;
 use crate::Timer;
 
 use super::{MainMenuState, State, Transition};

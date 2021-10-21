@@ -9,7 +9,7 @@ use rand_xorshift::XorShiftRng;
 
 use crate::game::{Difficulty, Map};
 use crate::graphics::{draw_text, DrawColors, Palette};
-use crate::mouse::Mouse;
+use crate::Mouse;
 use crate::wasm4::get_random_seed;
 
 use super::{InGameState, State, Transition};

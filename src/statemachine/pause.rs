@@ -5,7 +5,7 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::interface::draw_message_box;
-use crate::mouse::Mouse;
+use crate::Mouse;
 
 use super::{State, Transition};
 

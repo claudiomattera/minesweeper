@@ -9,9 +9,7 @@
 use once_cell::unsync::Lazy;
 
 use crate::graphics::DrawColors;
-
 use crate::mouse::Mouse;
-
 use crate::debug;
 
 mod initial;

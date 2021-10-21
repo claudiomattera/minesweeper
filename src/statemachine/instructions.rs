@@ -6,7 +6,7 @@
 
 use crate::graphics::{draw_text, DrawColors, Tile};
 use crate::interface::draw_box;
-use crate::mouse::Mouse;
+use crate::Mouse;
 
 use super::{State, Transition};
 
