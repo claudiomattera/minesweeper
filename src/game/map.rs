@@ -210,16 +210,10 @@ impl Map {
     }
 
     fn count_neighbour_flags(&self, x: usize, y: usize) -> usize {
-        let mut count = 0;
-
-        let neighbours = self.neighbours(x, y);
-        for (nx, ny) in neighbours {
-            if let Tile::Flagged = self.tile(nx as usize, ny as usize) {
-                count += 1;
-            }
-        }
-
-        count
+        self.neighbours(x, y)
+            .into_iter()
+            .filter(|(nx, ny)| matches!(self.tile(*nx, *ny), Tile::Flagged))
+            .count()
     }
 
     fn neighbours(&self, x: usize, y: usize) -> Vec<(usize, usize)> {
