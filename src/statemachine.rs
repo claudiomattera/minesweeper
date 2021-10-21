@@ -79,11 +79,22 @@ impl Machine {
     /// [`Transition::Replace`] transition containing itself.
     pub fn update(&mut self, mouse: &Mouse) {
         let state: State = self.states_stack.pop().expect("Empty state machine!!!");
+        let old_state_name = state.name();
         let transition: Transition = state.update(mouse);
 
         match transition {
             Transition::Replace(state) => {
+                let state_name = state.name();
+
                 self.states_stack.push(state);
+
+                if state_name != old_state_name {
+                    debug!("Replacing state on stack");
+                    debug!(
+                        "Current state: {}",
+                        self.states_stack.iter().last().unwrap().name()
+                    );
+                }
             }
             Transition::Push(old_state, state) => {
                 // First restore old state onto stack
