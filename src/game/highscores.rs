@@ -11,6 +11,10 @@ use crate::wasm4::{diskr, diskw};
 
 use super::Difficulty;
 
+/// High scores
+///
+/// High scores are represented as time taken to win the game in seconds.
+/// Therefore, lower scores are actually higher.
 #[derive(Clone)]
 pub struct HighScores {
     easy: Option<u16>,
