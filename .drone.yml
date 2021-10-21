@@ -63,6 +63,7 @@ steps:
   commands:
   - find ./target/debug -maxdepth 1 -type f -and -not -name xtask.exe -delete
   - rm -rf ./target/.rustc_info.json
+  - mkdir -p output
 
 - name: rebuild cache
   image: plugins/s3-cache
@@ -160,7 +161,7 @@ steps:
 - name: bundle into cartridge
   image: docker.claudiomattera.it/claudiomattera/wasm4:1.0.8
   commands:
-  - mkdir output
+  - mkdir -p output
   - w4 bundle target/wasm32-unknown-unknown/release/minesweeper.wasm
       --title "Minesweeper"
       --description "A minesweeper game using WASM4 engine"
