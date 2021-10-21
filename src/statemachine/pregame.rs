@@ -24,8 +24,10 @@ impl PreGameState {
     pub fn new(difficulty: Difficulty) -> Self {
         let width = 16;
         let height = 14;
+        let offset = (0, 20);
+        let tile_size = 10;
         Self {
-            map: Map::new(width, height, (0, 20)),
+            map: Map::new(width, height, tile_size, offset),
             difficulty,
         }
     }

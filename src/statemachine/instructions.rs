@@ -15,6 +15,8 @@ pub struct InstructionsState {
     index: usize,
 }
 
+const TILE_SIZE: u32 = 10;
+
 impl InstructionsState {
     #[allow(clippy::new_without_default)]
     pub fn new() -> Self {
@@ -54,10 +56,10 @@ to uncover it.",
             y + 3,
         );
 
-        Tile::Covered.draw(x + 10, y + 50, false, 0);
+        Tile::Covered.draw(x + 10, y + 50, TILE_SIZE, false, 0);
         draw_text("->", x + 20, y + 51);
 
-        Tile::Uncovered.draw(x + 40, y + 50, false, 0);
+        Tile::Uncovered.draw(x + 40, y + 50, TILE_SIZE, false, 0);
     },
     |x, y| {
         DrawColors.set(3);
@@ -68,10 +70,10 @@ you lose!",
             y + 3,
         );
 
-        Tile::Covered.draw(x + 10, y + 50, false, 0);
+        Tile::Covered.draw(x + 10, y + 50, TILE_SIZE, false, 0);
         draw_text("->", x + 20, y + 51);
 
-        Tile::Uncovered.draw(x + 40, y + 50, true, 0);
+        Tile::Uncovered.draw(x + 40, y + 50, TILE_SIZE, true, 0);
     },
     |x, y| {
         DrawColors.set(3);
@@ -82,10 +84,10 @@ tile to flag it.",
             y + 3,
         );
 
-        Tile::Covered.draw(x + 10, y + 50, false, 0);
+        Tile::Covered.draw(x + 10, y + 50, TILE_SIZE, false, 0);
         draw_text("->", x + 20, y + 51);
 
-        Tile::Flagged.draw(x + 40, y + 50, false, 0);
+        Tile::Flagged.draw(x + 40, y + 50, TILE_SIZE, false, 0);
 
         DrawColors.set(3);
         draw_text(
@@ -111,17 +113,17 @@ or diagonally.",
             y + 3,
         );
 
-        Tile::Uncovered.draw(x + 10, y + 85, false, 1);
-        Tile::Uncovered.draw(x + 20, y + 85, true, 0);
-        Tile::Uncovered.draw(x + 30, y + 85, false, 2);
+        Tile::Uncovered.draw(x + 10, y + 85, TILE_SIZE, false, 1);
+        Tile::Uncovered.draw(x + 20, y + 85, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 30, y + 85, TILE_SIZE, false, 2);
 
-        Tile::Uncovered.draw(x + 10, y + 95, false, 2);
-        Tile::Uncovered.draw(x + 20, y + 95, false, 4);
-        Tile::Uncovered.draw(x + 30, y + 95, true, 0);
+        Tile::Uncovered.draw(x + 10, y + 95, TILE_SIZE, false, 2);
+        Tile::Uncovered.draw(x + 20, y + 95, TILE_SIZE, false, 4);
+        Tile::Uncovered.draw(x + 30, y + 95, TILE_SIZE, true, 0);
 
-        Tile::Uncovered.draw(x + 10, y + 105, true, 0);
-        Tile::Uncovered.draw(x + 20, y + 105, false, 3);
-        Tile::Uncovered.draw(x + 30, y + 105, true, 0);
+        Tile::Uncovered.draw(x + 10, y + 105, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 20, y + 105, TILE_SIZE, false, 3);
+        Tile::Uncovered.draw(x + 30, y + 105, TILE_SIZE, true, 0);
     },
     |x, y| {
         DrawColors.set(3);
@@ -139,32 +141,32 @@ adjacent mines.",
             y + 3,
         );
 
-        Tile::Covered.draw(x + 10, y + 85, false, 0);
-        Tile::Flagged.draw(x + 20, y + 85, true, 0);
-        Tile::Covered.draw(x + 30, y + 85, false, 0);
+        Tile::Covered.draw(x + 10, y + 85, TILE_SIZE, false, 0);
+        Tile::Flagged.draw(x + 20, y + 85, TILE_SIZE, true, 0);
+        Tile::Covered.draw(x + 30, y + 85, TILE_SIZE, false, 0);
 
-        Tile::Covered.draw(x + 10, y + 95, false, 0);
-        Tile::Uncovered.draw(x + 20, y + 95, false, 4);
-        Tile::Flagged.draw(x + 30, y + 95, true, 0);
+        Tile::Covered.draw(x + 10, y + 95, TILE_SIZE, false, 0);
+        Tile::Uncovered.draw(x + 20, y + 95, TILE_SIZE, false, 4);
+        Tile::Flagged.draw(x + 30, y + 95, TILE_SIZE, true, 0);
 
-        Tile::Flagged.draw(x + 10, y + 105, true, 0);
-        Tile::Covered.draw(x + 20, y + 105, false, 0);
-        Tile::Flagged.draw(x + 30, y + 105, true, 0);
+        Tile::Flagged.draw(x + 10, y + 105, TILE_SIZE, true, 0);
+        Tile::Covered.draw(x + 20, y + 105, TILE_SIZE, false, 0);
+        Tile::Flagged.draw(x + 30, y + 105, TILE_SIZE, true, 0);
 
         DrawColors.set(3);
         draw_text("->", x + 50, y + 94);
 
-        Tile::Uncovered.draw(x + 66 + 10, y + 85, false, 1);
-        Tile::Flagged.draw(x + 66 + 20, y + 85, true, 0);
-        Tile::Uncovered.draw(x + 66 + 30, y + 85, false, 2);
+        Tile::Uncovered.draw(x + 66 + 10, y + 85, TILE_SIZE, false, 1);
+        Tile::Flagged.draw(x + 66 + 20, y + 85, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 66 + 30, y + 85, TILE_SIZE, false, 2);
 
-        Tile::Uncovered.draw(x + 66 + 10, y + 95, false, 2);
-        Tile::Uncovered.draw(x + 66 + 20, y + 95, false, 4);
-        Tile::Flagged.draw(x + 66 + 30, y + 95, true, 0);
+        Tile::Uncovered.draw(x + 66 + 10, y + 95, TILE_SIZE, false, 2);
+        Tile::Uncovered.draw(x + 66 + 20, y + 95, TILE_SIZE, false, 4);
+        Tile::Flagged.draw(x + 66 + 30, y + 95, TILE_SIZE, true, 0);
 
-        Tile::Flagged.draw(x + 66 + 10, y + 105, true, 0);
-        Tile::Uncovered.draw(x + 66 + 20, y + 105, false, 3);
-        Tile::Flagged.draw(x + 66 + 30, y + 105, true, 0);
+        Tile::Flagged.draw(x + 66 + 10, y + 105, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 66 + 20, y + 105, TILE_SIZE, false, 3);
+        Tile::Flagged.draw(x + 66 + 30, y + 105, TILE_SIZE, true, 0);
     },
     |x, y| {
         DrawColors.set(3);
@@ -176,32 +178,32 @@ tiles!",
             y + 3,
         );
 
-        Tile::Covered.draw(x + 10, y + 85, false, 0);
-        Tile::Covered.draw(x + 20, y + 85, true, 0);
-        Tile::Flagged.draw(x + 30, y + 85, false, 0);
+        Tile::Covered.draw(x + 10, y + 85, TILE_SIZE, false, 0);
+        Tile::Covered.draw(x + 20, y + 85, TILE_SIZE, true, 0);
+        Tile::Flagged.draw(x + 30, y + 85, TILE_SIZE, false, 0);
 
-        Tile::Covered.draw(x + 10, y + 95, false, 0);
-        Tile::Uncovered.draw(x + 20, y + 95, false, 4);
-        Tile::Flagged.draw(x + 30, y + 95, true, 0);
+        Tile::Covered.draw(x + 10, y + 95, TILE_SIZE, false, 0);
+        Tile::Uncovered.draw(x + 20, y + 95, TILE_SIZE, false, 4);
+        Tile::Flagged.draw(x + 30, y + 95, TILE_SIZE, true, 0);
 
-        Tile::Flagged.draw(x + 10, y + 105, true, 0);
-        Tile::Covered.draw(x + 20, y + 105, false, 0);
-        Tile::Flagged.draw(x + 30, y + 105, true, 0);
+        Tile::Flagged.draw(x + 10, y + 105, TILE_SIZE, true, 0);
+        Tile::Covered.draw(x + 20, y + 105, TILE_SIZE, false, 0);
+        Tile::Flagged.draw(x + 30, y + 105, TILE_SIZE, true, 0);
 
         DrawColors.set(3);
         draw_text("->", x + 50, y + 94);
 
-        Tile::Uncovered.draw(x + 66 + 10, y + 85, false, 1);
-        Tile::Uncovered.draw(x + 66 + 20, y + 85, true, 0);
-        Tile::Flagged.draw(x + 66 + 30, y + 85, false, 2);
+        Tile::Uncovered.draw(x + 66 + 10, y + 85, TILE_SIZE, false, 1);
+        Tile::Uncovered.draw(x + 66 + 20, y + 85, TILE_SIZE, true, 0);
+        Tile::Flagged.draw(x + 66 + 30, y + 85, TILE_SIZE, false, 2);
 
-        Tile::Uncovered.draw(x + 66 + 10, y + 95, false, 2);
-        Tile::Uncovered.draw(x + 66 + 20, y + 95, false, 4);
-        Tile::Flagged.draw(x + 66 + 30, y + 95, true, 0);
+        Tile::Uncovered.draw(x + 66 + 10, y + 95, TILE_SIZE, false, 2);
+        Tile::Uncovered.draw(x + 66 + 20, y + 95, TILE_SIZE, false, 4);
+        Tile::Flagged.draw(x + 66 + 30, y + 95, TILE_SIZE, true, 0);
 
-        Tile::Flagged.draw(x + 66 + 10, y + 105, true, 0);
-        Tile::Uncovered.draw(x + 66 + 20, y + 105, false, 3);
-        Tile::Flagged.draw(x + 66 + 30, y + 105, true, 0);
+        Tile::Flagged.draw(x + 66 + 10, y + 105, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 66 + 20, y + 105, TILE_SIZE, false, 3);
+        Tile::Flagged.draw(x + 66 + 30, y + 105, TILE_SIZE, true, 0);
     },
     |x, y| {
         DrawColors.set(3);
@@ -223,32 +225,32 @@ more flags.",
             y + 55,
         );
 
-        Tile::Covered.draw(x + 10, y + 85, false, 0);
-        Tile::Flagged.draw(x + 20, y + 85, true, 0);
-        Tile::Uncovered.draw(x + 30, y + 85, false, 2);
+        Tile::Covered.draw(x + 10, y + 85, TILE_SIZE, false, 0);
+        Tile::Flagged.draw(x + 20, y + 85, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 30, y + 85, TILE_SIZE, false, 2);
 
-        Tile::Covered.draw(x + 10, y + 95, false, 0);
-        Tile::Uncovered.draw(x + 20, y + 95, false, 4);
-        Tile::Flagged.draw(x + 30, y + 95, true, 0);
+        Tile::Covered.draw(x + 10, y + 95, TILE_SIZE, false, 0);
+        Tile::Uncovered.draw(x + 20, y + 95, TILE_SIZE, false, 4);
+        Tile::Flagged.draw(x + 30, y + 95, TILE_SIZE, true, 0);
 
-        Tile::Flagged.draw(x + 10, y + 105, true, 0);
-        Tile::Uncovered.draw(x + 20, y + 105, false, 3);
-        Tile::Flagged.draw(x + 30, y + 105, true, 0);
+        Tile::Flagged.draw(x + 10, y + 105, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 20, y + 105, TILE_SIZE, false, 3);
+        Tile::Flagged.draw(x + 30, y + 105, TILE_SIZE, true, 0);
 
         DrawColors.set(3);
         draw_text("->", x + 50, y + 94);
 
-        Tile::Uncovered.draw(x + 66 + 10, y + 85, false, 1);
-        Tile::Flagged.draw(x + 66 + 20, y + 85, true, 0);
-        Tile::Uncovered.draw(x + 66 + 30, y + 85, false, 2);
+        Tile::Uncovered.draw(x + 66 + 10, y + 85, TILE_SIZE, false, 1);
+        Tile::Flagged.draw(x + 66 + 20, y + 85, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 66 + 30, y + 85, TILE_SIZE, false, 2);
 
-        Tile::Uncovered.draw(x + 66 + 10, y + 95, false, 2);
-        Tile::Uncovered.draw(x + 66 + 20, y + 95, false, 4);
-        Tile::Flagged.draw(x + 66 + 30, y + 95, true, 0);
+        Tile::Uncovered.draw(x + 66 + 10, y + 95, TILE_SIZE, false, 2);
+        Tile::Uncovered.draw(x + 66 + 20, y + 95, TILE_SIZE, false, 4);
+        Tile::Flagged.draw(x + 66 + 30, y + 95, TILE_SIZE, true, 0);
 
-        Tile::Flagged.draw(x + 66 + 10, y + 105, true, 0);
-        Tile::Uncovered.draw(x + 66 + 20, y + 105, false, 3);
-        Tile::Flagged.draw(x + 66 + 30, y + 105, true, 0);
+        Tile::Flagged.draw(x + 66 + 10, y + 105, TILE_SIZE, true, 0);
+        Tile::Uncovered.draw(x + 66 + 20, y + 105, TILE_SIZE, false, 3);
+        Tile::Flagged.draw(x + 66 + 30, y + 105, TILE_SIZE, true, 0);
     },
     |x, y| {
         DrawColors.set(3);

@@ -10,7 +10,6 @@ use core::iter::Iterator;
 
 use crate::graphics::Tile;
 
-const TILE_SIZE: u32 = 10;
 const MAX_WIDTH: usize = 16;
 const MAX_HEIGHT: usize = 16;
 
@@ -23,6 +22,7 @@ const MAX_HEIGHT: usize = 16;
 /// It also contains the offset to which the map is drawn.
 #[derive(Clone)]
 pub struct Map {
+    tile_size: u32,
     offset: (i32, i32),
     tiles: Vec<Tile>,
     width: usize,
@@ -31,12 +31,13 @@ pub struct Map {
 
 impl Map {
     /// Create a new map with given size and drawing offset
-    pub fn new(width: usize, height: usize, offset: (i32, i32)) -> Self {
+    pub fn new(width: usize, height: usize, tile_size: u32, offset: (i32, i32)) -> Self {
         debug_assert!(width <= MAX_WIDTH);
         debug_assert!(height <= MAX_HEIGHT);
 
         let tiles = vec![Tile::Covered; width * height];
         Self {
+            tile_size,
             offset,
             tiles,
             width,
@@ -182,8 +183,8 @@ impl Map {
             for ty in 0..self.height {
                 let tile = self.tile(tx, ty);
 
-                let x = tx as i32 * TILE_SIZE as i32;
-                let y = ty as i32 * TILE_SIZE as i32;
+                let x = tx as i32 * self.tile_size as i32;
+                let y = ty as i32 * self.tile_size as i32;
 
                 let is_mine = mines.iter().any(|(mx, my)| (*mx, *my) == (tx, ty));
 
@@ -191,6 +192,7 @@ impl Map {
                 tile.draw(
                     self.offset.0 + x,
                     self.offset.1 + y,
+                    self.tile_size,
                     is_mine,
                     neighbour_mines,
                 );
@@ -263,12 +265,12 @@ impl Map {
         let mouse_y = mouse_y - self.offset.1 as i16;
         if mouse_x < 0
             || mouse_y < 0
-            || mouse_x / TILE_SIZE as i16 >= self.width as i16
-            || mouse_y / TILE_SIZE as i16 >= self.height as i16
+            || mouse_x / self.tile_size as i16 >= self.width as i16
+            || mouse_y / self.tile_size as i16 >= self.height as i16
         {
             None
         } else {
-            let (x, y) = (mouse_x / TILE_SIZE as i16, mouse_y / TILE_SIZE as i16);
+            let (x, y) = (mouse_x / self.tile_size as i16, mouse_y / self.tile_size as i16);
             Some((x as usize, y as usize))
         }
     }
