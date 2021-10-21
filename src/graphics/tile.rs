@@ -7,20 +7,42 @@
 use crate::assets::FONT_SPRITE;
 use crate::graphics::{draw_horizontal_line, draw_rect, draw_vertical_line, DrawColors};
 
+/// A font character
+///
+/// Font characters are used to draw some tiles, such as numbers, mines and
+/// flags.
 pub enum Character {
+    /// A number
     Number(usize),
+
+    /// A mine
     Mine,
+
+    /// A flag
     Flag,
 }
 
+/// A map tile
+///
+/// Map tiles can be covered, uncovered or flagged regardless of the possible
+/// mine below them.
 #[derive(Clone, Copy)]
 pub enum Tile {
+    /// A covered map tile
     Covered,
+
+    /// An uncovered map tile
     Uncovered,
+
+    /// A flagged map tile
     Flagged,
 }
 
 impl Tile {
+    /// Draw a tile
+    ///
+    /// The tile is drawn at the specified position with the specified size.
+    /// If it is uncovered, it is either drawn as a mine or as a regular tile.
     pub fn draw(
         &self,
         x: i32,
