@@ -8,7 +8,7 @@ use crate::graphics::{draw_text, DrawColors, Palette};
 use crate::interface::draw_message_box;
 use crate::input::Mouse;
 use crate::game::Map;
-use crate::Timer;
+use crate::time::Timer;
 
 use super::{MainMenuState, State, Transition};
 

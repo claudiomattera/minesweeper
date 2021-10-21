@@ -8,7 +8,7 @@ use crate::game::{Difficulty, Map};
 use crate::graphics::{draw_text, DrawColors, Palette};
 use crate::input::Mouse;
 use crate::sound::play_game_over_sound;
-use crate::Timer;
+use crate::time::Timer;
 
 use super::{GameOverState, GameWonState, PauseState, State, Transition};
 

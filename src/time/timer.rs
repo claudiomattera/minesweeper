@@ -6,7 +6,7 @@
 
 //! Timer data types and function
 
-use crate::Ticker;
+use super::Ticker;
 
 /// A timer to keep track of elapsed time
 #[derive(Clone)]
