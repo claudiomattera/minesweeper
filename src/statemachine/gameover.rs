@@ -4,10 +4,10 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::graphics::{draw_text, DrawColors, Palette};
-use crate::interface::draw_message_box;
-use crate::input::Mouse;
 use crate::game::Map;
+use crate::graphics::{draw_text, DrawColors, Palette};
+use crate::input::Mouse;
+use crate::interface::draw_message_box;
 use crate::time::Timer;
 
 use super::{MainMenuState, State, Transition};

@@ -5,8 +5,8 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::graphics::{draw_text, DrawColors, Tile};
-use crate::interface::draw_box;
 use crate::input::Mouse;
+use crate::interface::draw_box;
 
 use super::{State, Transition};
 
@@ -46,7 +46,7 @@ impl InstructionsState {
     }
 }
 
-const PAGES: [fn(i32, i32)->(); 8] = [
+const PAGES: [fn(i32, i32) -> (); 8] = [
     |x, y| {
         DrawColors.set(3);
         draw_text(

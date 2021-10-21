@@ -47,7 +47,7 @@ impl HighScores {
     /// Get the highscore for a difficulty
     pub fn get(&self, difficulty: Difficulty) -> Option<u16> {
         match difficulty {
-            Difficulty::Easy =>  self.easy,
+            Difficulty::Easy => self.easy,
             Difficulty::Medium => self.medium,
             Difficulty::Hard => self.hard,
         }
@@ -60,15 +60,21 @@ impl HighScores {
     pub fn set(&mut self, difficulty: Difficulty, time: u16) {
         match difficulty {
             Difficulty::Easy => {
-                let new_time = self.easy.map_or(time, |old_time| std::cmp::min(old_time, time));
+                let new_time = self
+                    .easy
+                    .map_or(time, |old_time| std::cmp::min(old_time, time));
                 self.easy = Some(new_time);
             }
             Difficulty::Medium => {
-                let new_time = self.medium.map_or(time, |old_time| std::cmp::min(old_time, time));
+                let new_time = self
+                    .medium
+                    .map_or(time, |old_time| std::cmp::min(old_time, time));
                 self.medium = Some(new_time);
             }
             Difficulty::Hard => {
-                let new_time = self.hard.map_or(time, |old_time| std::cmp::min(old_time, time));
+                let new_time = self
+                    .hard
+                    .map_or(time, |old_time| std::cmp::min(old_time, time));
                 self.hard = Some(new_time);
             }
         }

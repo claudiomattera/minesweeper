@@ -11,10 +11,10 @@ mod alloc;
 
 pub mod assets;
 pub mod debug;
-pub mod interface;
-pub mod input;
-pub mod graphics;
 pub mod game;
+pub mod graphics;
+pub mod input;
+pub mod interface;
 pub mod sound;
 pub mod statemachine;
 pub mod time;

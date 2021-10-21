@@ -40,9 +40,12 @@ impl MainMenuState {
 
         DrawColors.set(0x2);
         draw_text("HIGH SCORES", 4, 90);
-        for (i, difficulty) in ([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard]).iter().enumerate()
+        for (i, difficulty) in ([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard])
+            .iter()
+            .enumerate()
         {
-            let text = self.highscores
+            let text = self
+                .highscores
                 .get(*difficulty)
                 .map(|time| format!("{:6}  {} s", difficulty.as_ref(), time))
                 .unwrap_or_else(|| format!("{:6}  Unbeaten", difficulty.as_ref()));

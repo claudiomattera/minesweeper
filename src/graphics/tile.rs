@@ -43,14 +43,7 @@ impl Tile {
     ///
     /// The tile is drawn at the specified position with the specified size.
     /// If it is uncovered, it is either drawn as a mine or as a regular tile.
-    pub fn draw(
-        &self,
-        x: i32,
-        y: i32,
-        tile_size: u32,
-        is_mine: bool,
-        neighbour_mines: usize,
-    ) {
+    pub fn draw(&self, x: i32, y: i32, tile_size: u32, is_mine: bool, neighbour_mines: usize) {
         self.draw_tile_border(x, y, tile_size);
 
         match self {
