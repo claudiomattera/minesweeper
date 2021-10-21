@@ -23,14 +23,26 @@ Uncovered tiles show the number of adjacent mines, both vertically, horizontally
 
 Flag tiles which you believe cover a mine.
 After uncovering a tile, if the number of adjacent flagged tiles is equal to the number of adjacent mines, all non-flagged adjacent tiles are also uncovered.
+Simultaneous left and right click on a numbered uncovered tile will uncover adjacent tiles.
 
 
 Implementation
 ----
 
-This game is implemented in [Rust], using the toolkit [WASM-4].
+This game is implemented in [Rust] using the toolkit [WASM-4].
+It is a bit over engineered, but it was a fun project to learn WASM-4 and improve knowledge about Rust.
 
 The game can be embedded in a web page using [WebAssembly].
+A standalone cartridge can be created with the following commands.
+
+~~~~bash
+cargo build --release
+w4 bundle target/wasm32-unknown-unknown/release/minesweeper.wasm
+      --title "Minesweeper"
+      --description "A minesweeper game using WASM4 engine"
+      --timestamp
+      --html ./cartridge.html
+~~~~
 
 [Rust]: https://www.rust-lang.org/
 [WASM-4]: https://wasm4.org/
