@@ -1,7 +1,7 @@
 Minesweeper
 ====
 
-A minesweeper game using WASM4 engine
+A minesweeper game using WASM-4 engine
 
 <https://git.claudiomattera.it/claudiomattera/minesweeper/>
 
@@ -39,7 +39,7 @@ A standalone cartridge can be created with the following commands.
 cargo build --release
 w4 bundle target/wasm32-unknown-unknown/release/minesweeper.wasm
       --title "Minesweeper"
-      --description "A minesweeper game using WASM4 engine"
+      --description "A minesweeper game using WASM-4 engine"
       --timestamp
       --html ./cartridge.html
 ~~~~

@@ -168,7 +168,7 @@ steps:
   - mkdir -p output
   - w4 bundle target/wasm32-unknown-unknown/release/minesweeper.wasm
       --title "Minesweeper"
-      --description "A minesweeper game using WASM4 engine"
+      --description "A minesweeper game using WASM-4 engine"
       --timestamp
       --html ./output/minesweeper.html
 
