@@ -27,8 +27,8 @@ macro_rules! debug {
         {
             use bare_io::{Cursor, Write};
 
-            let mut string_buffer: [u8; 256] = [0; 256];
-            let mut cursor = Cursor::new(&mut string_buffer[..]);
+            let mut string_buffer = vec![0; 256];
+            let mut cursor = Cursor::new(string_buffer.as_mut_slice());
             write!(&mut cursor, $format, $($arg,)*)
                 .expect("!write");
             let ending = cursor.position() as usize;
