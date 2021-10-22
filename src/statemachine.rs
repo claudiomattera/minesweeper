@@ -89,29 +89,21 @@ impl Machine {
                 self.states_stack.push(state);
 
                 if state_name != old_state_name {
-                    debug!("Replacing state on stack");
-                    debug!(
-                        "Current state: {}",
-                        self.states_stack.iter().last().unwrap().name()
-                    );
+                    debug!("Replacing state {} with state {}", old_state_name, state_name);
                 }
             }
             Transition::Push(old_state, state) => {
                 // First restore old state onto stack
                 self.states_stack.push(old_state);
 
-                debug!("Pushing new state to stack");
+                debug!("Pushing new state {} to stack", state.name());
                 self.states_stack.push(state);
-                debug!(
-                    "Current state: {}",
-                    self.states_stack.iter().last().unwrap().name()
-                );
             }
             Transition::Pop => {
-                debug!("Popping state from stack");
-                // Already done at the beginning of this function
+                // State was already popped at the beginning of this function
                 debug!(
-                    "Current state: {}",
+                    "Popping state {} from stack, new top is {}",
+                    old_state_name,
                     self.states_stack.iter().last().unwrap().name()
                 );
             }
