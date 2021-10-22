@@ -160,7 +160,7 @@ steps:
 - name: build
   image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
   commands:
-  - cargo build --frozen --release
+  - cargo build --frozen --release --no-default-features --features=buddy-alloc
 
 - name: bundle into cartridge
   image: docker.claudiomattera.it/claudiomattera/wasm4:1.0.8
