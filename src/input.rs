@@ -4,15 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-//! Game components
+//! Input primitives and subsystems
 
-mod difficulty;
-pub use difficulty::Difficulty;
-
-mod highscores;
-pub use highscores::HighScores;
-
-mod r#loop;
-
-mod map;
-pub use map::Map;
+mod mouse;
+pub use mouse::Mouse;

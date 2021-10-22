@@ -9,6 +9,7 @@
 use crate::wasm4::{MOUSE_BUTTONS, MOUSE_X, MOUSE_Y};
 
 /// A mouse
+#[derive(Clone, Copy)]
 pub struct Mouse;
 
 static mut PREVIOUS_BUTTONS: u8 = 0;

@@ -2,6 +2,10 @@
 kind: pipeline
 type: docker
 name: build and test
+environment:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  CARGO_HOME: "./.cargo_home/"
 trigger:
   event:
     include:
@@ -10,35 +14,72 @@ trigger:
     - tag
 
 steps:
+- name: restore cache
+  image: plugins/s3-cache
+  settings:
+    endpoint:
+      from_secret: s3_endpoint
+    access_key:
+      from_secret: s3_access_key
+    secret_key:
+      from_secret: s3_secret_key
+    root: drone
+    restore: true
+
+- name: download dependencies
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  commands:
+  - cargo fetch --locked
+
 - name: check format
   failure: ignore
   image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
-  environment:
-    CARGO_HOME: "./.cargo_home/"
   commands:
   - cargo fmt --all -- --check
 
 - name: run linter
   failure: ignore
   image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
-  environment:
-    CARGO_HOME: "./.cargo_home/"
   commands:
-  - cargo clippy --target=x86_64-unknown-linux-gnu --all-features --tests
+  - cargo clippy --frozen --target=x86_64-unknown-linux-gnu --all-features --tests
 
 - name: build
   image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
-  environment:
-    CARGO_HOME: "./.cargo_home/"
   commands:
-  - cargo build --target=x86_64-unknown-linux-gnu --no-default-features --tests
+  - cargo build --frozen --target=x86_64-unknown-linux-gnu --no-default-features --tests
+
+- name: build tests
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  commands:
+  - cargo test --frozen --target=x86_64-unknown-linux-gnu --no-default-features --no-run
 
 - name: test
   image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
-  environment:
-    CARGO_HOME: "./.cargo_home/"
   commands:
-  - cargo test --target=x86_64-unknown-linux-gnu --no-default-features
+  - cargo test --frozen --target=x86_64-unknown-linux-gnu --no-default-features
+
+- name: prepare cache
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  commands:
+  - find ./target/debug -maxdepth 1 -type f -and -not -name xtask.exe -delete
+  - rm -rf ./target/.rustc_info.json
+  - mkdir -p output
+
+- name: rebuild cache
+  image: plugins/s3-cache
+  settings:
+    endpoint:
+      from_secret: s3_endpoint
+    access_key:
+      from_secret: s3_access_key
+    secret_key:
+      from_secret: s3_secret_key
+    root: drone
+    rebuild: true
+    mount:
+      - ./target
+      - ./.cargo_home
+      - ./output
 
 ---
 kind: pipeline
@@ -85,23 +126,49 @@ steps:
 kind: pipeline
 type: docker
 name: release
+environment:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  CARGO_HOME: "./.cargo_home/"
 trigger:
   event:
   - tag
 
 steps:
+- name: restore cache
+  image: plugins/s3-cache
+  settings:
+    endpoint:
+      from_secret: s3_endpoint
+    access_key:
+      from_secret: s3_access_key
+    secret_key:
+      from_secret: s3_secret_key
+    root: drone
+    restore: true
+
+- name: download dependencies
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  commands:
+  - cargo fetch --locked
+
+- name: remove build artifacts
+  image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
+  commands:
+  - cargo clean --frozen
+
 - name: build
   image: docker.claudiomattera.it/claudiomattera/rust:1.55.0
   commands:
-  - cargo build --release
+  - cargo build --frozen --release --no-default-features --features=buddy-alloc
 
 - name: bundle into cartridge
   image: docker.claudiomattera.it/claudiomattera/wasm4:1.0.8
   commands:
-  - mkdir output
+  - mkdir -p output
   - w4 bundle target/wasm32-unknown-unknown/release/minesweeper.wasm
       --title "Minesweeper"
-      --description "A minesweeper game using WASM4 engine"
+      --description "A minesweeper game using WASM-4 engine"
       --timestamp
       --html ./output/minesweeper.html
 
@@ -117,6 +184,8 @@ steps:
     root: drone
     rebuild: true
     mount:
+      - ./target
+      - ./.cargo_home
       - ./output
 
 - name: create release on gitea

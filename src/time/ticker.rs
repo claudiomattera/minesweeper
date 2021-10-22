@@ -8,7 +8,7 @@
 
 /// A ticker to keep track of the current frame
 ///
-/// WASM4 engine runs at 60 frames per second.
+/// WASM-4 engine runs at 60 frames per second.
 /// This object can be used to find out what is the current frame number.
 pub struct Ticker;
 

@@ -4,7 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use crate::mouse::Mouse;
+use crate::input::Mouse;
 
 use super::{MainMenuState, State, Transition};
 
@@ -17,7 +17,7 @@ impl InitialState {
         Self {}
     }
 
-    pub fn draw(&self) {}
+    pub fn draw(&self, _mouse: Option<Mouse>) {}
 
     pub fn update(self, _mouse: &Mouse) -> Transition {
         Transition::Push(State::Initial(self), State::MainMenu(MainMenuState::new()))

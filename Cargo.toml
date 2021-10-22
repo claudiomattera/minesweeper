@@ -1,6 +1,6 @@
 [package]
 name = "minesweeper"
-version = "0.4.0"
+version = "0.5.0"
 authors = ["Claudio Mattera <dev@claudiomattera.it>"]
 edition = "2018"
 description = "A minesweeper game using W4 engine"
@@ -15,6 +15,10 @@ categories = [
     "games",
 ]
 publish = false
+
+[package.metadata.docs.rs]
+all-features = true
+default-target = "x86_64-unknown-linux-gnu"
 
 [features]
 # use `--no-default-features` or comment out next line to disable allocator
@@ -33,7 +37,7 @@ rand_xorshift = { version = "0.3" }
 once_cell = { version = "1.8" }
 
 [build-dependencies]
-png2wasm4src = { version = "0.1.0", git = "https://git.claudiomattera.it/claudiomattera/png2wasm4src/"}
+png2wasm4src = { version = "0.1.0" }
 
 [profile.release]
 opt-level = "z"

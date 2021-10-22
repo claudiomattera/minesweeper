@@ -4,8 +4,8 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::input::Mouse;
 use crate::interface::draw_message_box;
-use crate::mouse::Mouse;
 
 use super::{State, Transition};
 
@@ -18,7 +18,7 @@ impl PauseState {
         Self {}
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, _mouse: Option<Mouse>) {
         let x = 16;
         let y = 30;
 

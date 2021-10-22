@@ -8,11 +8,9 @@
 
 use once_cell::unsync::Lazy;
 
-use crate::graphics::DrawColors;
-
-use crate::mouse::Mouse;
-
 use crate::debug;
+use crate::graphics::DrawColors;
+use crate::input::Mouse;
 
 mod initial;
 use initial::InitialState;
@@ -22,6 +20,9 @@ use gameover::GameOverState;
 
 mod gamewon;
 use gamewon::GameWonState;
+
+mod instructions;
+use instructions::InstructionsState;
 
 mod mainmenu;
 use mainmenu::MainMenuState;
@@ -56,9 +57,14 @@ pub struct Machine {
 impl Machine {
     /// Draw all states in the stack
     pub fn draw(&self) {
-        for state in &self.states_stack {
+        for (i, state) in self.states_stack.iter().enumerate() {
+            let mouse = if i == self.states_stack.len() - 1 {
+                Some(Mouse)
+            } else {
+                None
+            };
             let original_colors = DrawColors.get();
-            state.draw();
+            state.draw(mouse);
             DrawColors.set(original_colors);
         }
     }
@@ -73,28 +79,34 @@ impl Machine {
     /// [`Transition::Replace`] transition containing itself.
     pub fn update(&mut self, mouse: &Mouse) {
         let state: State = self.states_stack.pop().expect("Empty state machine!!!");
+        let old_state_name = state.name();
         let transition: Transition = state.update(mouse);
 
         match transition {
             Transition::Replace(state) => {
+                let state_name = state.name();
+
                 self.states_stack.push(state);
+
+                if state_name != old_state_name {
+                    debug!(
+                        "Replacing state {} with state {}",
+                        old_state_name, state_name
+                    );
+                }
             }
             Transition::Push(old_state, state) => {
                 // First restore old state onto stack
                 self.states_stack.push(old_state);
 
-                debug!("Pushing new state to stack");
+                debug!("Pushing new state {} to stack", state.name());
                 self.states_stack.push(state);
-                debug!(
-                    "Current state: {}",
-                    self.states_stack.iter().last().unwrap().name()
-                );
             }
             Transition::Pop => {
-                debug!("Popping state from stack");
-                // Already done at the beginning of this function
+                // State was already popped at the beginning of this function
                 debug!(
-                    "Current state: {}",
+                    "Popping state {} from stack, new top is {}",
+                    old_state_name,
                     self.states_stack.iter().last().unwrap().name()
                 );
             }
@@ -143,6 +155,9 @@ pub enum State {
 
     /// The state of main menu
     MainMenu(MainMenuState),
+
+    /// The state of main menu
+    Instructions(InstructionsState),
 }
 
 impl State {
@@ -156,21 +171,23 @@ impl State {
             State::GameWon(_) => "game_won",
             State::Pause(_) => "pause",
             State::MainMenu(_) => "main_menu",
+            State::Instructions(_) => "instructions",
         }
     }
 
     /// Draw the current state
     ///
     /// This function delegates the drawing to the state data.
-    pub fn draw(&self) {
+    pub fn draw(&self, mouse: Option<Mouse>) {
         match self {
-            State::Initial(s) => s.draw(),
-            State::PreGame(s) => s.draw(),
-            State::InGame(s) => s.draw(),
-            State::GameOver(s) => s.draw(),
-            State::GameWon(s) => s.draw(),
-            State::Pause(s) => s.draw(),
-            State::MainMenu(s) => s.draw(),
+            State::Initial(s) => s.draw(mouse),
+            State::PreGame(s) => s.draw(mouse),
+            State::InGame(s) => s.draw(mouse),
+            State::GameOver(s) => s.draw(mouse),
+            State::GameWon(s) => s.draw(mouse),
+            State::Pause(s) => s.draw(mouse),
+            State::MainMenu(s) => s.draw(mouse),
+            State::Instructions(s) => s.draw(mouse),
         }
     }
 
@@ -186,6 +203,7 @@ impl State {
             State::GameWon(state) => state.update(mouse),
             State::Pause(state) => state.update(mouse),
             State::MainMenu(state) => state.update(mouse),
+            State::Instructions(state) => state.update(mouse),
         }
     }
 }

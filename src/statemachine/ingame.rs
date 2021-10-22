@@ -5,14 +5,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::game::{Difficulty, Map};
-
-use crate::graphics::{draw_text, DrawColors};
-
-use crate::mouse::Mouse;
-
+use crate::graphics::{draw_text, DrawColors, Palette};
+use crate::input::Mouse;
 use crate::sound::play_game_over_sound;
-
-use crate::Timer;
+use crate::time::Timer;
 
 use super::{GameOverState, GameWonState, PauseState, State, Transition};
 
@@ -40,7 +36,9 @@ impl InGameState {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, _mouse: Option<Mouse>) {
+        Palette::Hollow.set();
+
         let map = &self.map;
 
         // Draw map
@@ -49,7 +47,7 @@ impl InGameState {
         // Draw remaining mines count
         let flagged_tiles = map.count_flagged_tiles();
         let remaining_mines = self.mines.len() - flagged_tiles;
-        let s = format!("Mines:{:02}", remaining_mines);
+        let s = format!("Mines:{:2}", remaining_mines);
         DrawColors.set(0x03);
         draw_text(s, 160 - 64, 2);
 

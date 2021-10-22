@@ -10,7 +10,6 @@ use core::iter::Iterator;
 
 use crate::graphics::Tile;
 
-const TILE_SIZE: u32 = 10;
 const MAX_WIDTH: usize = 16;
 const MAX_HEIGHT: usize = 16;
 
@@ -23,6 +22,7 @@ const MAX_HEIGHT: usize = 16;
 /// It also contains the offset to which the map is drawn.
 #[derive(Clone)]
 pub struct Map {
+    tile_size: u32,
     offset: (i32, i32),
     tiles: Vec<Tile>,
     width: usize,
@@ -31,12 +31,13 @@ pub struct Map {
 
 impl Map {
     /// Create a new map with given size and drawing offset
-    pub fn new(width: usize, height: usize, offset: (i32, i32)) -> Self {
+    pub fn new(width: usize, height: usize, tile_size: u32, offset: (i32, i32)) -> Self {
         debug_assert!(width <= MAX_WIDTH);
         debug_assert!(height <= MAX_HEIGHT);
 
         let tiles = vec![Tile::Covered; width * height];
         Self {
+            tile_size,
             offset,
             tiles,
             width,
@@ -54,40 +55,45 @@ impl Map {
         self.height
     }
 
-    /// Check whether an uncovered tile contains a mine
-    pub fn has_stepped_on_mine(&self, mines: &[(usize, usize)]) -> bool {
-        mines
-            .iter()
-            .map(|(x, y)| self.tile(*x, *y))
-            .any(|tile| matches!(tile, Tile::Uncovered))
-    }
-
-    /// Count the uncovered tiles
-    pub fn count_uncovered_tiles(&self) -> usize {
-        self.tiles
-            .iter()
-            .filter(|tile| matches!(tile, Tile::Uncovered))
-            .count()
-    }
-
-    /// Flag a tile
-    pub fn flag_tile(&mut self, tx: usize, ty: usize) {
-        match self.tile(tx, ty) {
-            Tile::Uncovered => {}
-            Tile::Covered => self.flag_individual_tile(tx, ty),
-            Tile::Flagged => {},
+    /// Map mouse coordinates to tile coordinates
+    pub fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
+        let mouse_x = mouse_x - self.offset.0 as i16;
+        let mouse_y = mouse_y - self.offset.1 as i16;
+        if mouse_x < 0
+            || mouse_y < 0
+            || mouse_x / self.tile_size as i16 >= self.width as i16
+            || mouse_y / self.tile_size as i16 >= self.height as i16
+        {
+            None
+        } else {
+            let (x, y) = (
+                mouse_x / self.tile_size as i16,
+                mouse_y / self.tile_size as i16,
+            );
+            Some((x as usize, y as usize))
         }
     }
 
-    /// Flip a tile
-    ///
-    /// This function flip the flagged status, from flagged to covered and
-    /// viceversa
-    pub fn flip_flagged_tile(&mut self, tx: usize, ty: usize) {
-        match self.tile(tx, ty) {
-            Tile::Uncovered => {}
-            Tile::Covered => self.flag_individual_tile(tx, ty),
-            Tile::Flagged => self.unflag_individual_tile(tx, ty),
+    /// Draw the map
+    pub fn draw(&self, mines: &[(usize, usize)]) {
+        for tx in 0..self.width {
+            for ty in 0..self.height {
+                let tile = self.tile(tx, ty);
+
+                let x = tx as i32 * self.tile_size as i32;
+                let y = ty as i32 * self.tile_size as i32;
+
+                let is_mine = mines.iter().any(|(mx, my)| (*mx, *my) == (tx, ty));
+
+                let neighbour_mines = self.count_neighbour_mines(mines, tx, ty);
+                tile.draw(
+                    self.offset.0 + x,
+                    self.offset.1 + y,
+                    self.tile_size,
+                    is_mine,
+                    neighbour_mines,
+                );
+            }
         }
     }
 
@@ -106,11 +112,24 @@ impl Map {
     }
 
     /// Handle simultaneous mouse left and right clicks on the map
-    pub fn handle_left_and_right_click(&mut self, mouse_x: i16, mouse_y: i16, mines: &[(usize, usize)]) {
+    pub fn handle_left_and_right_click(
+        &mut self,
+        mouse_x: i16,
+        mouse_y: i16,
+        mines: &[(usize, usize)],
+    ) {
         if let Some((x, y)) = self.mouse_to_tile(mouse_x, mouse_y) {
             let candidates = self.find_neighbouring_uncoverable_tiles(x, y, mines);
             self.uncover_tiles(candidates, mines)
         }
+    }
+
+    /// Check whether an uncovered tile contains a mine
+    pub fn has_stepped_on_mine(&self, mines: &[(usize, usize)]) -> bool {
+        mines
+            .iter()
+            .map(|(x, y)| self.tile(*x, *y))
+            .any(|tile| matches!(tile, Tile::Uncovered))
     }
 
     /// Count the flagged tiles
@@ -119,6 +138,37 @@ impl Map {
             .iter()
             .filter(|tile| matches!(tile, Tile::Flagged))
             .count()
+    }
+
+    /// Count the uncovered tiles
+    pub fn count_uncovered_tiles(&self) -> usize {
+        self.tiles
+            .iter()
+            .filter(|tile| matches!(tile, Tile::Uncovered))
+            .count()
+    }
+
+    /// Flag a tile
+    ///
+    /// If the tile is already flagged or uncovered, it does nothing.
+    pub fn flag_tile(&mut self, tx: usize, ty: usize) {
+        match self.tile(tx, ty) {
+            Tile::Uncovered => {}
+            Tile::Covered => self.flag_individual_tile(tx, ty),
+            Tile::Flagged => {}
+        }
+    }
+
+    /// Flip a tile
+    ///
+    /// This function flip the flagged status, from flagged to covered and
+    /// viceversa
+    pub fn flip_flagged_tile(&mut self, tx: usize, ty: usize) {
+        match self.tile(tx, ty) {
+            Tile::Uncovered => {}
+            Tile::Covered => self.flag_individual_tile(tx, ty),
+            Tile::Flagged => self.unflag_individual_tile(tx, ty),
+        }
     }
 
     /// Recursively uncover a tile and its neighbours
@@ -132,13 +182,7 @@ impl Map {
         self.uncover_tiles(tiles, mines)
     }
 
-    /// Recursively uncover tiles and their neighbours
-    ///
-    /// Once a tile is uncovered, the number of neighbouring mines and the
-    /// number of neighbouring flagged tiles are compared.
-    /// If they are the same, all non-flagged neighbouring tiles are also
-    /// recursively uncovered.
-    pub fn uncover_tiles(
+    fn uncover_tiles(
         &mut self,
         mut tiles_to_uncover: Vec<(usize, usize)>,
         mines: &[(usize, usize)],
@@ -170,52 +214,9 @@ impl Map {
         let neighbour_mines = self.count_neighbour_mines(mines, x, y);
         let neighbour_flags = self.count_neighbour_flags(x, y);
         if neighbour_mines == neighbour_flags {
-            // Must be a signed type to check for negative indices
-            let x = x as i32;
-            let y = y as i32;
-            vec![
-                    (x + 1, y + 1),
-                    (x + 1, y - 1),
-                    (x - 1, y + 1),
-                    (x - 1, y - 1),
-                    (x, y + 1),
-                    (x, y - 1),
-                    (x + 1, y),
-                    (x - 1, y),
-                ]
-                .into_iter()
-                .filter(|(cx, cy)| {
-                    *cx >= 0
-                    && *cy >= 0
-                    && *cx < self.width as i32
-                    && *cy < self.height as i32
-                })
-                .map(|(cx, cy)| (cx as usize, cy as usize))
-                .collect()
+            self.neighbours(x, y)
         } else {
             Vec::new()
-        }
-    }
-
-    /// Draw the map
-    pub fn draw(&self, mines: &[(usize, usize)]) {
-        for tx in 0..self.width {
-            for ty in 0..self.height {
-                let tile = self.tile(tx, ty);
-
-                let x = tx as i32 * TILE_SIZE as i32;
-                let y = ty as i32 * TILE_SIZE as i32;
-
-                let is_mine = mines.iter().any(|(mx, my)| (*mx, *my) == (tx, ty));
-
-                let neighbour_mines = self.count_neighbour_mines(mines, tx, ty);
-                tile.draw(
-                    self.offset.0 + x,
-                    self.offset.1 + y,
-                    is_mine,
-                    neighbour_mines,
-                );
-            }
         }
     }
 
@@ -231,11 +232,17 @@ impl Map {
     }
 
     fn count_neighbour_flags(&self, x: usize, y: usize) -> usize {
+        self.neighbours(x, y)
+            .into_iter()
+            .filter(|(nx, ny)| matches!(self.tile(*nx, *ny), Tile::Flagged))
+            .count()
+    }
+
+    fn neighbours(&self, x: usize, y: usize) -> Vec<(usize, usize)> {
+        // Must be a signed type to check for negative indices
         let x = x as i32;
         let y = y as i32;
-        let mut count = 0;
-
-        let candidates = [
+        vec![
             (x + 1, y + 1),
             (x + 1, y - 1),
             (x - 1, y + 1),
@@ -244,16 +251,13 @@ impl Map {
             (x, y - 1),
             (x + 1, y),
             (x - 1, y),
-        ];
-        for (cx, cy) in candidates {
-            if cx >= 0 && cy >= 0 && cx < self.width as i32 && cy < self.height as i32 {
-                if let Tile::Flagged = self.tile(cx as usize, cy as usize) {
-                    count += 1;
-                }
-            }
-        }
-
-        count
+        ]
+        .into_iter()
+        .filter(|(cx, cy)| {
+            *cx >= 0 && *cy >= 0 && *cx < self.width as i32 && *cy < self.height as i32
+        })
+        .map(|(cx, cy)| (cx as usize, cy as usize))
+        .collect()
     }
 
     fn tile(&self, x: usize, y: usize) -> &Tile {
@@ -270,21 +274,5 @@ impl Map {
 
     fn unflag_individual_tile(&mut self, x: usize, y: usize) {
         self.tiles[x + y * self.width] = Tile::Covered;
-    }
-
-    /// Map mouse coordinates to tile coordinates
-    pub fn mouse_to_tile(&self, mouse_x: i16, mouse_y: i16) -> Option<(usize, usize)> {
-        let mouse_x = mouse_x - self.offset.0 as i16;
-        let mouse_y = mouse_y - self.offset.1 as i16;
-        if mouse_x < 0
-            || mouse_y < 0
-            || mouse_x / TILE_SIZE as i16 >= self.width as i16
-            || mouse_y / TILE_SIZE as i16 >= self.height as i16
-        {
-            None
-        } else {
-            let (x, y) = (mouse_x / TILE_SIZE as i16, mouse_y / TILE_SIZE as i16);
-            Some((x as usize, y as usize))
-        }
     }
 }

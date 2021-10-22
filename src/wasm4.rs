@@ -1,7 +1,7 @@
 //
 // WASM-4: https://wasm4.org/docs
 
-//! WASM4 runtime variables and functions
+//! WASM-4 runtime variables and functions
 
 #![allow(unused)]
 

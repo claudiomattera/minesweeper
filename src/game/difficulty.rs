@@ -15,7 +15,7 @@ pub enum Difficulty {
     /// A medium game with 30 mines
     Medium,
 
-    /// A hard game with 60 mines
+    /// A hard game with 50 mines
     Hard,
 }
 
@@ -25,7 +25,7 @@ impl Difficulty {
         match self {
             Difficulty::Easy => 10,
             Difficulty::Medium => 30,
-            Difficulty::Hard => 60,
+            Difficulty::Hard => 50,
         }
     }
 }

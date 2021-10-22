@@ -13,11 +13,16 @@ pub fn draw_message_box(text: &str, x: i32, y: i32) {
     let height = 15 + 8 * text.chars().filter(|c| *c == '\n').count() as u32;
     let width = 160 - 2 * x as u32;
 
+    draw_box(x, y, width, height);
+
+    DrawColors.set(0x03);
+    draw_text(text, x + 4, y + 4);
+}
+
+/// Draw a box
+pub fn draw_box(x: i32, y: i32, width: u32, height: u32) {
     DrawColors.set(0x44);
     draw_rect(x + 3, y + 3, width, height);
     DrawColors.set(0x21);
     draw_rect(x, y, width, height);
-
-    DrawColors.set(0x03);
-    draw_text(text, x + 4, y + 4);
 }

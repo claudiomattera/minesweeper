@@ -5,10 +5,10 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::game::{Difficulty, HighScores};
-use crate::graphics::{draw_rect, draw_text, DrawColors};
-use crate::mouse::Mouse;
+use crate::graphics::{draw_rect, draw_text, DrawColors, Palette};
+use crate::input::Mouse;
 
-use super::{PreGameState, State, Transition};
+use super::{InstructionsState, PreGameState, State, Transition};
 
 #[derive(Clone)]
 pub struct MainMenuState {
@@ -26,24 +26,31 @@ impl MainMenuState {
         }
     }
 
-    pub fn draw(&self) {
+    pub fn draw(&self, mouse: Option<Mouse>) {
+        Palette::Wheat.set();
+
         let title = "MINESWEEPER";
         DrawColors.set(0x02);
         draw_text(title, 1 + (160 - 8 * title.len() as i32) / 2, 4);
-        self.draw_menu_entry(0, "Start an easy game");
-        self.draw_menu_entry(1, "Start a medium game");
-        self.draw_menu_entry(2, "Start a hard game");
+        self.draw_menu_entry(0, "Start an easy game", mouse);
+        self.draw_menu_entry(1, "Start a medium game", mouse);
+        self.draw_menu_entry(2, "Start a hard game", mouse);
+
+        self.draw_menu_entry(3, "Instructions", mouse);
 
         DrawColors.set(0x2);
-        draw_text("HIGH SCORES", 4, 70);
-        for (i, difficulty) in ([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard]).iter().enumerate()
+        draw_text("HIGH SCORES", 4, 90);
+        for (i, difficulty) in ([Difficulty::Easy, Difficulty::Medium, Difficulty::Hard])
+            .iter()
+            .enumerate()
         {
-            let text = self.highscores
+            let text = self
+                .highscores
                 .get(*difficulty)
                 .map(|time| format!("{:6}  {} s", difficulty.as_ref(), time))
                 .unwrap_or_else(|| format!("{:6}  Unbeaten", difficulty.as_ref()));
             DrawColors.set(0x3);
-            draw_text(text, 4, 82 + 10 * i as i32);
+            draw_text(text, 4, 102 + 10 * i as i32);
         }
 
         let text = format!("Version {}", env!("CARGO_PKG_VERSION"));
@@ -60,6 +67,13 @@ impl MainMenuState {
                 if self.is_mouse_inside_entry(index, mouse_x, mouse_y) {
                     return Transition::Replace(State::PreGame(PreGameState::new(difficulty)));
                 }
+            }
+
+            if self.is_mouse_inside_entry(3, mouse_x, mouse_y) {
+                return Transition::Push(
+                    State::MainMenu(self),
+                    State::Instructions(InstructionsState::new()),
+                );
             }
         }
 
@@ -78,11 +92,15 @@ impl MainMenuState {
             && mouse_y as i32 <= y + HEIGHT as i32
     }
 
-    fn draw_menu_entry(&self, index: usize, text: &str) {
+    fn draw_menu_entry(&self, index: usize, text: &str, mouse: Option<Mouse>) {
         let (x, y) = self.entry_to_coordinates(index);
 
-        let (mouse_x, mouse_y) = Mouse.coordinates();
-        let is_highlighted = self.is_mouse_inside_entry(index, mouse_x, mouse_y);
+        let is_highlighted = mouse
+            .map(|mouse| {
+                let (mouse_x, mouse_y) = mouse.coordinates();
+                self.is_mouse_inside_entry(index, mouse_x, mouse_y)
+            })
+            .unwrap_or(false);
 
         if is_highlighted {
             DrawColors.set(0x02);
