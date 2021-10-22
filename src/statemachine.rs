@@ -89,7 +89,10 @@ impl Machine {
                 self.states_stack.push(state);
 
                 if state_name != old_state_name {
-                    debug!("Replacing state {} with state {}", old_state_name, state_name);
+                    debug!(
+                        "Replacing state {} with state {}",
+                        old_state_name, state_name
+                    );
                 }
             }
             Transition::Push(old_state, state) => {
