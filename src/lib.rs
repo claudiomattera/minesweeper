@@ -10,7 +10,7 @@
 mod alloc;
 
 pub mod assets;
-pub mod debug;
+mod debug;
 pub mod game;
 pub mod graphics;
 pub mod input;
