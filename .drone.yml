@@ -126,6 +126,10 @@ steps:
 kind: pipeline
 type: docker
 name: release
+environment:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  CARGO_HOME: "./.cargo_home/"
 trigger:
   event:
   - tag
