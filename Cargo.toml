@@ -1,12 +1,12 @@
 [package]
 name = "minesweeper"
-version = "0.5.0"
+version = "1.0.0"
 authors = ["Claudio Mattera <dev@claudiomattera.it>"]
 edition = "2018"
-description = "A minesweeper game using W4 engine"
+description = "A minesweeper game using WASM-4 engine"
 readme = "Readme.md"
-homepage = "https://git.claudiomattera.it/claudiomattera/minesweeper"
-repository = "https://git.claudiomattera.it/claudiomattera/minesweeper"
+homepage = "https://gitlab.com/claudiomattera/minesweeper"
+repository = "https://gitlab.com/claudiomattera/minesweeper"
 license = "MPL-2.0"
 keywords = [
     "games",

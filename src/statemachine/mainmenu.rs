@@ -53,9 +53,12 @@ impl MainMenuState {
             draw_text(text, 4, 102 + 10 * i as i32);
         }
 
-        let text = format!("Version {}", env!("CARGO_PKG_VERSION"));
-        DrawColors.set(0x2);
-        draw_text(&text, 160 - 2 - 8 * text.len() as i32, 150);
+        #[cfg(feature = "debug")]
+        {
+            let text = format!("Version {}", env!("CARGO_PKG_VERSION"));
+            DrawColors.set(0x2);
+            draw_text(&text, 160 - 2 - 8 * text.len() as i32, 150);
+        }
     }
 
     pub fn update(self, mouse: &Mouse) -> Transition {

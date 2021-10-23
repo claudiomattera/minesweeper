@@ -8,8 +8,9 @@ use rand_core::{RngCore, SeedableRng};
 use rand_xorshift::XorShiftRng;
 
 use crate::game::{Difficulty, Map};
-use crate::graphics::{draw_text, DrawColors, Palette};
+use crate::graphics::Palette;
 use crate::input::Mouse;
+use crate::interface::{draw_elapsed_time, draw_remaining_mines_count};
 use crate::wasm4::get_random_seed;
 
 use super::{InGameState, State, Transition};
@@ -37,15 +38,11 @@ impl PreGameState {
 
         self.map.draw(&[]);
 
-        // Draw remaining mines count
         let remaining_mines = self.difficulty.mines_count();
-        let s = format!("Mines:{:2}", remaining_mines);
-        DrawColors.set(0x03);
-        draw_text(s, 160 - 64, 2);
+        draw_remaining_mines_count(remaining_mines, 160 - 64, 2);
 
-        // Draw elapsed time
-        let s = format!("Time:{:3}", 0);
-        draw_text(s, 2, 2);
+        let elapsed_time = 0;
+        draw_elapsed_time(elapsed_time, 2, 2);
     }
 
     pub fn update(mut self, mouse: &Mouse) -> Transition {

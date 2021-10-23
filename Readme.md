@@ -3,7 +3,7 @@ Minesweeper
 
 A minesweeper game using WASM-4 engine
 
-<https://git.claudiomattera.it/claudiomattera/minesweeper/>
+<https://gitlab.com/claudiomattera/minesweeper/>
 
 This game is a reimplementation of the classical Minesweeper game.
 
