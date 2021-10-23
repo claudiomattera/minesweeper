@@ -5,8 +5,9 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 use crate::game::{Difficulty, Map};
-use crate::graphics::{draw_text, DrawColors, Palette};
+use crate::graphics::Palette;
 use crate::input::Mouse;
+use crate::interface::{draw_elapsed_time, draw_remaining_mines_count};
 use crate::sound::play_game_over_sound;
 use crate::time::Timer;
 
@@ -41,19 +42,14 @@ impl InGameState {
 
         let map = &self.map;
 
-        // Draw map
         map.draw(&self.mines);
 
-        // Draw remaining mines count
         let flagged_tiles = map.count_flagged_tiles();
         let remaining_mines = self.mines.len() - flagged_tiles;
-        let s = format!("Mines:{:2}", remaining_mines);
-        DrawColors.set(0x03);
-        draw_text(s, 160 - 64, 2);
+        draw_remaining_mines_count(remaining_mines, 160 - 64, 2);
 
-        // Draw elapsed time
-        let s = format!("Time:{:3}", self.timer.get());
-        draw_text(s, 2, 2);
+        let elapsed_time = self.timer.get();
+        draw_elapsed_time(elapsed_time, 2, 2);
     }
 
     pub fn update(mut self, mouse: &Mouse) -> Transition {
