@@ -40,11 +40,9 @@ impl InGameState {
     pub fn draw(&self, _mouse: Option<Mouse>) {
         Palette::Hollow.set();
 
-        let map = &self.map;
+        self.map.draw(&self.mines);
 
-        map.draw(&self.mines);
-
-        let flagged_tiles = map.count_flagged_tiles();
+        let flagged_tiles = self.map.count_flagged_tiles();
         let remaining_mines = self.mines.len() - flagged_tiles;
         draw_remaining_mines_count(remaining_mines, 160 - 64, 2);
 
@@ -53,12 +51,9 @@ impl InGameState {
     }
 
     pub fn update(mut self, mouse: &Mouse) -> Transition {
-        let has_found_all_mines = self.has_found_all_mines();
-        let map = &mut self.map;
-
-        if map.has_stepped_on_mine(&self.mines) {
+        if self.map.has_stepped_on_mine(&self.mines) {
             for (mx, my) in &self.mines {
-                map.flag_tile(*mx, *my);
+                self.map.flag_tile(*mx, *my);
             }
 
             play_game_over_sound();
@@ -68,9 +63,9 @@ impl InGameState {
             )));
         }
 
-        if has_found_all_mines {
+        if self.has_found_all_mines() {
             for (mx, my) in &self.mines {
-                map.flag_tile(*mx, *my);
+                self.map.flag_tile(*mx, *my);
             }
             return Transition::Replace(State::GameWon(GameWonState::new(
                 self.difficulty,
@@ -89,16 +84,16 @@ impl InGameState {
 
         if self.left_click_age > 0 && self.right_click_age > 0 {
             let (x, y) = mouse.coordinates();
-            map.handle_left_and_right_click(x, y, &self.mines);
+            self.map.handle_left_and_right_click(x, y, &self.mines);
         } else if mouse.left_clicked() {
             let (x, y) = mouse.coordinates();
-            if map.mouse_to_tile(x, y).is_none() {
+            if self.map.mouse_to_tile(x, y).is_none() {
                 return Transition::Push(State::InGame(self), State::Pause(PauseState::new()));
             }
-            map.handle_left_click(x, y, &self.mines);
+            self.map.handle_left_click(x, y, &self.mines);
         } else if mouse.right_clicked() {
             let (x, y) = mouse.coordinates();
-            map.handle_right_click(x, y);
+            self.map.handle_right_click(x, y);
         }
 
         self.timer.update();
