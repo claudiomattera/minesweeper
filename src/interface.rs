@@ -29,6 +29,9 @@ pub fn draw_box(x: i32, y: i32, width: u32, height: u32) {
 
 /// Draw remaining mines count box
 pub fn draw_remaining_mines_count(remaining_mines: usize, x: i32, y: i32) {
+    let x = x - 2;
+    let y = y + 2;
+
     let s = format!("Mines:{:2}", remaining_mines);
     DrawColors.set(0x03);
     draw_text(s, x, y);
@@ -36,6 +39,9 @@ pub fn draw_remaining_mines_count(remaining_mines: usize, x: i32, y: i32) {
 
 /// Draw elapsed time box
 pub fn draw_elapsed_time(elapsed_time: u32, x: i32, y: i32) {
+    let x = x + 2;
+    let y = y + 2;
+
     let s = format!("Time:{:3}", elapsed_time);
     DrawColors.set(0x03);
     draw_text(s, x, y);
