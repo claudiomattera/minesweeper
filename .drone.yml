@@ -246,12 +246,12 @@ steps:
 ---
 kind: pipeline
 type: docker
-name: deployment
+name: deployment on internal website
 trigger:
   event:
   - promote
   target:
-  - production
+  - internal
 
 steps:
 - name: fetch
@@ -281,6 +281,37 @@ steps:
     source: ./output/minesweeper.html
     strip_components: 2
 
+---
+kind: pipeline
+type: docker
+name: deployment on neocities
+trigger:
+  event:
+  - promote
+  target:
+  - neocities
+
+steps:
+- name: restore cache
+  image: plugins/s3-cache
+  settings:
+    endpoint:
+      from_secret: s3_endpoint
+    access_key:
+      from_secret: s3_access_key
+    secret_key:
+      from_secret: s3_secret_key
+    root: drone
+    restore: true
+
+- name: upload to neocities
+  image: alpine
+  commands:
+  - apk update
+  - apk add curl
+  - "curl --fail --oauth2-bearer \"$API_KEY\" --form \"assets/games/minesweeper.html=@./output/minesweeper.html\" https://neocities.org/api/upload"
+  - "curl --fail --oauth2-bearer \"$API_KEY\" --form \"assets/games/minesweeper.png=@./screenshot.png\" https://neocities.org/api/upload"
+
 
 ---
 kind: pipeline
@@ -288,13 +319,12 @@ type: docker
 name: deployment notification
 
 depends_on:
-- deployment
+- deployment on internal website
+- deployment on neocities
 
 trigger:
   event:
   - promote
-  target:
-  - production
   status:
   - failure
 
@@ -307,7 +337,7 @@ steps:
     token:
       from_secret: gotify_token
     title: >
-        ✗ Deployment to {{drone.deply.to}} failed for {{drone.repo.name}}-{{drone.tag}}
+        ✗ Deployment to {{drone.deploy.to}} failed for {{drone.repo.name}}-{{drone.tag}}
     message: >
         Failed stages:
 
