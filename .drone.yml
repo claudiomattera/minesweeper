@@ -162,11 +162,17 @@ steps:
   commands:
   - cargo build --frozen --release --no-default-features --features=buddy-alloc
 
+- name: strip debug information
+  image: docker.claudiomattera.it/claudiomattera/wasm:1
+  commands:
+  - wasm-gc target/wasm32-unknown-unknown/release/minesweeper.wasm garbage_collected.wasm
+  - wasm-opt -Oz -o optimized.wasm garbage_collected.wasm
+
 - name: bundle into cartridge
   image: docker.claudiomattera.it/claudiomattera/wasm4:1.0.8
   commands:
   - mkdir -p output
-  - w4 bundle target/wasm32-unknown-unknown/release/minesweeper.wasm
+  - w4 bundle optimized.wasm
       --title "Minesweeper"
       --description "A minesweeper game using WASM-4 engine"
       --timestamp
