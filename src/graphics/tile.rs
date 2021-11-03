@@ -84,9 +84,9 @@ impl Tile {
             }
             Character::Mine => {
                 DrawColors.set(0x1142);
-                FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8 * 7, 8 * 8);
+                FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8 * 11, 0);
             }
-            Character::Flag => FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8, 8),
+            Character::Flag => FONT_SPRITE.blit_sub(x + offset, y + offset, 8, 8, 8 * 10, 0),
         }
     }
 }
