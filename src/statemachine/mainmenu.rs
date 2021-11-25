@@ -4,6 +4,7 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
+use crate::fmt::{format_number, pad_text};
 use crate::game::{Difficulty, HighScores};
 use crate::graphics::{draw_rect, draw_text, DrawColors, Palette};
 use crate::input::Mouse;
@@ -47,15 +48,19 @@ impl MainMenuState {
             let text = self
                 .highscores
                 .get(*difficulty)
-                .map(|time| format!("{:6}  {} s", difficulty.as_ref(), time))
-                .unwrap_or_else(|| format!("{:6}  Unbeaten", difficulty.as_ref()));
+                .map(|time| {
+                    pad_text(difficulty.as_ref(), 7)
+                        + &format_number(time.into(), None)
+                        + " s"
+                })
+                .unwrap_or_else(|| pad_text(difficulty.as_ref(), 7) + "  Unbeaten");
             DrawColors.set(0x3);
             draw_text(text, 4, 102 + 10 * i as i32);
         }
 
         #[cfg(feature = "debug")]
         {
-            let text = format!("Version {}", env!("CARGO_PKG_VERSION"));
+            let text = concat!("Version ", env!("CARGO_PKG_VERSION"));
             DrawColors.set(0x2);
             draw_text(&text, 160 - 2 - 8 * text.len() as i32, 150);
         }

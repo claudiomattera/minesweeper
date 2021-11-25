@@ -6,6 +6,7 @@
 
 //! Interface primitives
 
+use crate::fmt::format_number;
 use crate::graphics::{draw_rect, draw_text, DrawColors};
 
 /// Draw a message box
@@ -32,7 +33,7 @@ pub fn draw_remaining_mines_count(remaining_mines: usize, x: i32, y: i32) {
     let x = x - 2;
     let y = y + 2;
 
-    let s = format!("Mines:{:2}", remaining_mines);
+    let s = "Mines:".to_owned() + &format_number(remaining_mines as u32, Some(2));
     DrawColors.set(0x03);
     draw_text(s, x, y);
 }
@@ -42,7 +43,7 @@ pub fn draw_elapsed_time(elapsed_time: u32, x: i32, y: i32) {
     let x = x + 2;
     let y = y + 2;
 
-    let s = format!("Time:{:3}", elapsed_time);
+    let s = "Time:".to_owned() + &format_number(elapsed_time as u32, Some(3));
     DrawColors.set(0x03);
     draw_text(s, x, y);
 }
