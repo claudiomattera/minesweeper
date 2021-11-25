@@ -4,14 +4,13 @@
 // License, v. 2.0. If a copy of the MPL was not distributed with this
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-use rand_core::{RngCore, SeedableRng};
-use rand_xorshift::XorShiftRng;
+use rand_core::RngCore;
 
 use crate::game::{Difficulty, Map};
 use crate::graphics::Palette;
 use crate::input::Mouse;
 use crate::interface::{draw_elapsed_time, draw_remaining_mines_count};
-use crate::wasm4::get_random_seed;
+use crate::random::RNG;
 
 use super::{InGameState, State, Transition};
 
@@ -49,14 +48,7 @@ impl PreGameState {
         if mouse.left_clicked() {
             let (mouse_x, mouse_y) = mouse.coordinates();
             if let Some((tx, ty)) = self.map.mouse_to_tile(mouse_x, mouse_y) {
-                let seed = get_random_seed();
-                let mines = self.place_mines_from_random_seed(
-                    seed,
-                    self.map.width(),
-                    self.map.height(),
-                    tx,
-                    ty,
-                );
+                let mines = self.place_mines_randomly(self.map.width(), self.map.height(), tx, ty);
 
                 self.map.uncover_tile(tx, ty, &mines);
                 return Transition::Replace(State::InGame(InGameState::new(
@@ -70,17 +62,15 @@ impl PreGameState {
         Transition::Replace(State::PreGame(self))
     }
 
-    fn place_mines_from_random_seed(
+    fn place_mines_randomly(
         &self,
-        seed: u32,
         width: usize,
         height: usize,
         forbidden_x: usize,
         forbidden_y: usize,
     ) -> Vec<(usize, usize)> {
-        let seed = (seed as u64) << 32 | seed as u64;
         let mut mines = Vec::new();
-        let mut generator = XorShiftRng::seed_from_u64(seed);
+        let generator = unsafe { &mut RNG };
         for i in 0..self.difficulty.mines_count() {
             let mut x = generator.next_u32() as usize % width;
             let mut y = generator.next_u32() as usize % height;

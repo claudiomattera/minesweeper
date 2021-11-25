@@ -7,6 +7,7 @@
 //! Time primitives and subsystems
 
 mod ticker;
+pub use ticker::BigTicker;
 pub use ticker::Ticker;
 
 mod timer;

@@ -15,6 +15,7 @@ pub mod game;
 pub mod graphics;
 pub mod input;
 pub mod interface;
+pub mod random;
 pub mod sound;
 pub mod statemachine;
 pub mod time;

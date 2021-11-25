@@ -214,12 +214,3 @@ extern "C" {
     #[link_name = "traceUtf8"]
     fn extern_trace(trace: *const u8, length: usize);
 }
-
-/// Get a random seed
-pub fn get_random_seed() -> u32 {
-    unsafe { extern_seed() }
-}
-extern "C" {
-    #[link_name = "seed"]
-    fn extern_seed() -> u32;
-}

@@ -30,3 +30,25 @@ impl Ticker {
         unsafe { TICKER_COUNTER }
     }
 }
+
+pub struct BigTicker;
+
+static mut BIG_TICKER_COUNTER: u64 = 0;
+
+impl BigTicker {
+    /// Update the ticker
+    ///
+    /// This function must be called at the end of each frame.
+    #[inline]
+    pub fn update(&mut self) {
+        unsafe {
+            BIG_TICKER_COUNTER += 1;
+        }
+    }
+
+    /// Get the current frame number
+    #[inline]
+    pub fn get(&self) -> u64 {
+        unsafe { BIG_TICKER_COUNTER }
+    }
+}
