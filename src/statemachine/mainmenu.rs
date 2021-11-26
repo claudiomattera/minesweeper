@@ -49,9 +49,7 @@ impl MainMenuState {
                 .highscores
                 .get(*difficulty)
                 .map(|time| {
-                    pad_text(difficulty.as_ref(), 7)
-                        + &format_number(time.into(), None)
-                        + " s"
+                    pad_text(difficulty.as_ref(), 7) + &format_number(time.into(), None) + " s"
                 })
                 .unwrap_or_else(|| pad_text(difficulty.as_ref(), 7) + "  Unbeaten");
             DrawColors.set(0x3);
