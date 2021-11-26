@@ -9,7 +9,7 @@
 use crate::graphics::{draw_horizontal_line, draw_vertical_line, DrawColors};
 use crate::input::Mouse;
 use crate::statemachine::STATE_MACHINE;
-use crate::time::Ticker;
+use crate::time::{BigTicker, Ticker};
 
 #[no_mangle]
 fn start() {}
@@ -25,6 +25,7 @@ fn update() {
 
     Mouse.update();
     Ticker.update();
+    BigTicker.update();
 }
 
 fn draw_mouse_pointer() {

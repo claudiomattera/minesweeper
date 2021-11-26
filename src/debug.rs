@@ -23,7 +23,7 @@
 macro_rules! debug {
     ( $format:expr $(, $arg:expr)* ) => {
         {
-            use bare_io::{Cursor, Write};
+            use core2::io::{Cursor, Write};
 
             let mut string_buffer = vec![0; 256];
             let mut cursor = Cursor::new(string_buffer.as_mut_slice());
