@@ -170,7 +170,7 @@ steps:
   - wasm-opt -Oz --strip-dwarf --strip-producers --zero-filled-memory -o optimized.wasm garbage_collected.wasm
 
 - name: bundle into cartridge
-  image: docker.claudiomattera.it/claudiomattera/wasm4:1.0.8
+  image: docker.claudiomattera.it/claudiomattera/wasm4:1.1.0
   commands:
   - mkdir -p output
   - w4 bundle optimized.wasm
