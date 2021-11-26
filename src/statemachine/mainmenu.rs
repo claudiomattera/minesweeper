@@ -51,7 +51,7 @@ impl MainMenuState {
                 .map(|time| {
                     pad_text(difficulty.as_ref(), 7) + &format_number(time.into(), None) + " s"
                 })
-                .unwrap_or_else(|| pad_text(difficulty.as_ref(), 7) + "  Unbeaten");
+                .unwrap_or_else(|| pad_text(difficulty.as_ref(), 7) + "Unbeaten");
             DrawColors.set(0x3);
             draw_text(text, 4, 102 + 10 * i as i32);
         }
